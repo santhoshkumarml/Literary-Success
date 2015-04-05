@@ -110,8 +110,8 @@ def listGenreWiseFileNames():
 def readGenreBasedFilesAndTagWords(genre_to_file_list, meta_dict, tagger=None):
     for genre in genre_to_file_list:
         meta_dict_for_genre = meta_dict[genre]
-        # print 'Number of Files=',len(meta_dict_for_genre)
-        # print '--------------------------------------------------------------'
+        print '--------------------------------------------------------------'
+        print 'Number of Files in genre ',genre,' : ',len(meta_dict_for_genre)
         for genre_file_path,genre_file_name in genre_to_file_list[genre]:
             if genre_file_name not in meta_dict_for_genre:
                 continue
@@ -133,9 +133,8 @@ def readGenreBasedFilesAndTagWords(genre_to_file_list, meta_dict, tagger=None):
             pos_tag_dict = {key:(pos_tag_dict[key]/total_tags) for key in pos_tag_dict}
             meta_dict_for_genre_file = meta_dict_for_genre[genre_file_name]
             meta_dict_for_genre_file[TAGS] = pos_tag_dict
-#             print '--------------------------------------------------------------'
-#         print '--------------------------------------------------------------'
-#         print '--------------------------------------------------------------'
+        print 'Genre ', genre, ' Done'
+        print '--------------------------------------------------------------'
 
 def extractMetaDataAndPOSTagsDistributions():
     start_time = datetime.now()
@@ -144,10 +143,10 @@ def extractMetaDataAndPOSTagsDistributions():
     train_data = nltk.corpus.treebank.tagged_sents()
     unigramTagger = UnigramTagger(train_data, backoff=nltk.DefaultTagger('NN'))
     bigramTagger = BigramTagger(train_data, backoff=unigramTagger)
-    stanford_tagger = POSTagger('/media/santhosh/Data/workspace/nlp_project/models/english-bidirectional-distsim.tagger',
+    stanford_tagger = POSTagger('/media/santhosh/Data/workspace/nlp_project/models/english-left3words-distsim.tagger',
                 '/media/santhosh/Data/workspace/nlp_project/stanford-postagger.jar')
     readGenreBasedFilesAndTagWords(genre_to_file_list, meta_dict, stanford_tagger)
-    with open('../novel_meta_pos_stanford.meta', 'w') as f:
+    with open('../../../novel_meta_pos_stanford.meta', 'w') as f:
         f.write(str(meta_dict))
     end_time = datetime.now()
     print 'Total Time', end_time - start_time
