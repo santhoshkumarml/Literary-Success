@@ -23,7 +23,6 @@ FILE_NAME = 'FileName'
 CLASS = 'class'
 TAGS = 'TAGS'
 
-
 def fixMetaInfoRecord(tokens):
     wrong_split_idx = set()
     for i in range(len(tokens)):
@@ -118,7 +117,7 @@ def readGenreBasedFilesAndTagWords(genre_to_file_list, meta_dict, tagger=None):
             pos_tag_dict = dict()
             with open(genre_file_path) as f:
                 filelines = f.readlines()
-                tokens = [ [word  for word in line.split()] for line in filelines]
+                tokens = [nltk.word_tokenize(line.decode('utf8')) for line in filelines]
                 pos_tagged_lines = []
                 if tagger != None:
                     pos_tagged_lines = tagger.tag_sents(tokens)
@@ -144,8 +143,9 @@ def extractMetaDataAndPOSTagsDistributions():
     unigramTagger = UnigramTagger(train_data, backoff=nltk.DefaultTagger('NN'))
     bigramTagger = BigramTagger(train_data, backoff=unigramTagger)
     stanford_tagger = POSTagger('/media/santhosh/Data/workspace/nlp_project/models/english-left3words-distsim.tagger',
-                '/media/santhosh/Data/workspace/nlp_project/stanford-postagger.jar')
-    readGenreBasedFilesAndTagWords(genre_to_file_list, meta_dict, bigramTagger)
+                    '/media/santhosh/Data/workspace/nlp_project/stanford-postagger.jar')
+    TAGGERS = {'UNIGRAM': unigramTagger, 'BIGRAM':bigramTagger, 'STANFORD':stanford_tagger}
+    readGenreBasedFilesAndTagWords(genre_to_file_list, meta_dict, None)
     with open('../../../../novel_meta_pos_nltk_tagger.meta', 'w') as f:
         f.write(str(meta_dict))
     end_time = datetime.now()
