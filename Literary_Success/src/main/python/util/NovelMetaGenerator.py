@@ -145,8 +145,8 @@ def extractMetaDataAndPOSTagsDistributions():
     bigramTagger = BigramTagger(train_data, backoff=unigramTagger)
     stanford_tagger = POSTagger('/media/santhosh/Data/workspace/nlp_project/models/english-left3words-distsim.tagger',
                 '/media/santhosh/Data/workspace/nlp_project/stanford-postagger.jar')
-    readGenreBasedFilesAndTagWords(genre_to_file_list, meta_dict, stanford_tagger)
-    with open('../../../../novel_meta_pos_stanford.meta', 'w') as f:
+    readGenreBasedFilesAndTagWords(genre_to_file_list, meta_dict, bigramTagger)
+    with open('../../../../novel_meta_pos_nltk_tagger.meta', 'w') as f:
         f.write(str(meta_dict))
     end_time = datetime.now()
     print 'Total Time', end_time - start_time
