@@ -158,10 +158,17 @@ def readGenreBasedFilesAndRunCoreNLP(genre_to_file_list, meta_dict):
             if os.path.isfile(corenlp_result_file):
                 continue
             with open(genre_file_path) as f:
-                filelines = f.read()
-                with open(corenlp_result_file,'w') as f1:
-                    result = loads(server.parse(filelines))
-                    f1.write(result)
+                filelines = f.readlines()
+                # print type(filelines), len(filelines), filelines, genre_file_path
+                # filelines = filelines[0]
+                # print filelines
+                filelines = filelines[:500]
+                string = ''
+                for line in filelines:
+                    string += line+'\n'
+                result = loads(server.parse(string))
+                with open(corenlp_result_file, 'w') as f1:
+                    f1.write(str(result))
 
 def extractMetaDataAndPOSTagsDistributions():
     start_time = datetime.now()
