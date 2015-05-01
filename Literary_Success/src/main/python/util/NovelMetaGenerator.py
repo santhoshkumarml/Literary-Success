@@ -14,6 +14,7 @@ nltk.data.path.append('/media/santhosh/Data/workspace/nltk_data')
 
 NOVEL_BASE = '/media/santhosh/Data/workspace/nlp_project/novels'
 NOVEL_META = 'novel_meta.txt'
+CORE_NLP_BASE = '/media/santhosh/Data/workspace/nlp_project/core_nlp'
 dataset_pattern = r'[*]+DATASET:.*[*]+'
 folder_pattern = r'[*]+.*[*]+'
 entry_pattern = r'(SUCCESS|FAILURE).+:.+'
@@ -147,7 +148,10 @@ def readGenreBasedFilesAndRunCoreNLP(genre_to_file_list, meta_dict):
         print 'Number of Files in genre ', genre, ' : ', len(meta_dict_for_genre)
         count = 0
         for genre_file_path, genre_file_name in genre_to_file_list[genre]:
-            corenlp_result_file = os.path.join(os.path.dirname(genre_file_path),\
+            core_nlp_path = os.path.dirname(genre_file_path).replace(NOVEL_BASE, CORE_NLP_BASE)
+            if not os.path.exists(core_nlp_path):
+                os.makedirs(core_nlp_path)
+            corenlp_result_file = os.path.join(core_nlp_path,\
                                                genre_file_name.replace('.txt','_corenlp1000.txt'))
             count += 1
             print 'Currently Processing File in genre ', genre,' : ', count
@@ -158,7 +162,6 @@ def readGenreBasedFilesAndRunCoreNLP(genre_to_file_list, meta_dict):
                 with open(corenlp_result_file,'w') as f1:
                     result = loads(server.parse(filelines))
                     f1.write(result)
-                    f1.write('\n')
 
 def extractMetaDataAndPOSTagsDistributions():
     start_time = datetime.now()
