@@ -154,7 +154,7 @@ def readGenreBasedFilesAndRunCoreNLP(genre_to_file_list, meta_dict):
             corenlp_result_file = os.path.join(core_nlp_path,\
                                                genre_file_name.replace('.txt','_corenlp1000.txt'))
             count += 1
-            print 'Currently Processing File in genre ', genre,' : ', count
+            print 'Currently Processing File in genre ', genre,' : ', count, 'File Name:',  corenlp_result_file
             if os.path.isfile(corenlp_result_file):
                 continue
             with open(genre_file_path) as f:
