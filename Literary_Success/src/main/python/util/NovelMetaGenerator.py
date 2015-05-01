@@ -7,6 +7,9 @@ import re
 from datetime import datetime
 from nltk.tag.stanford import POSTagger
 
+import jsonrpclib
+from simplejson import loads
+
 nltk.data.path.append('/media/santhosh/Data/workspace/nltk_data')
 
 NOVEL_BASE = '/media/santhosh/Data/workspace/nlp_project/novels'
@@ -135,6 +138,28 @@ def readGenreBasedFilesAndTagWords(genre_to_file_list, meta_dict, tagger=None):
         print 'Genre ', genre, ' Done'
         print '--------------------------------------------------------------'
 
+
+def readGenreBasedFilesAndRunCoreNLP(genre_to_file_list, meta_dict):
+    server = jsonrpclib.Server("http://localhost:8080")
+    for genre in genre_to_file_list:
+        meta_dict_for_genre = meta_dict[genre]
+        print '--------------------------------------------------------------'
+        print 'Number of Files in genre ', genre, ' : ', len(meta_dict_for_genre)
+        count = 0
+        for genre_file_path, genre_file_name in genre_to_file_list[genre]:
+            corenlp_result_file = os.path.join(os.path.dirname(genre_file_path),\
+                                               genre_file_name.replace('.txt','_corenlp1000.txt'))
+            count += 1
+            print 'Currently Processing File in genre ', genre,' : ', count
+            if os.path.isfile(corenlp_result_file):
+                continue
+            with open(genre_file_path) as f:
+                filelines = f.read()
+                with open(corenlp_result_file,'w') as f1:
+                    result = loads(server.parse(filelines))
+                    f1.write(result)
+                    f1.write('\n')
+
 def extractMetaDataAndPOSTagsDistributions():
     start_time = datetime.now()
     meta_dict = loadInfoFromMetaFile()
@@ -151,4 +176,12 @@ def extractMetaDataAndPOSTagsDistributions():
     end_time = datetime.now()
     print 'Total Time', end_time - start_time
 
-extractMetaDataAndPOSTagsDistributions()
+def extractMetaDataAndTagCoreNLP():
+    start_time = datetime.now()
+    meta_dict = loadInfoFromMetaFile()
+    genre_to_file_list = listGenreWiseFileNames()
+    readGenreBasedFilesAndRunCoreNLP(genre_to_file_list, meta_dict)
+    end_time = datetime.now()
+    print 'Total Time', end_time - start_time
+
+extractMetaDataAndTagCoreNLP()
