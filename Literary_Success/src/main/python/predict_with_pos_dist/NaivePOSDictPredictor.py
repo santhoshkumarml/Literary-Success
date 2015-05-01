@@ -6,6 +6,7 @@ import random
 from sklearn.cluster import k_means
 from sklearn.linear_model.logistic import LogisticRegression
 
+
 CLASS = 'class'
 TAGS = 'TAGS'
 SUCCESS_PATTERN = 'SUCCESS'
@@ -13,7 +14,7 @@ FAILURE_PATTERN = 'FAILURE'
 
 def readMetaInfo():
     content = 'meta_dict='
-    with open('../../../../novel_meta_pos_nltk_tagger.meta', 'r') as f:
+    with open('../../../../novel_meta_pos_bigram.meta', 'r') as f:
         meta_dict = dict()
         content = content + f.readline()
         exec (content)
