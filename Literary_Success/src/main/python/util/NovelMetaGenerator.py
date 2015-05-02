@@ -9,6 +9,8 @@ from nltk.tag.stanford import POSTagger
 
 import jsonrpclib
 from simplejson import loads
+import time
+import subprocess
 
 nltk.data.path.append('/media/santhosh/Data/workspace/nltk_data')
 
@@ -54,7 +56,7 @@ def fixMetaInfoRecord(tokens):
 
 def processMetaInfoRecord(meta_dict_for_dataset, classification, line):
     line = line.replace(classification+':','')
-    tokens =  line.split(',')
+    tokens = line.split(',')
     
     fixMetaInfoRecord(tokens)
       
@@ -139,24 +141,36 @@ def readGenreBasedFilesAndTagWords(genre_to_file_list, meta_dict, tagger=None):
         print 'Genre ', genre, ' Done'
         print '--------------------------------------------------------------'
 
+def createCORENLPServer():
+    corenlp_process = subprocess.Popen(\
+        ['python', 'corenlp/corenlp.py','-S','stanford-corenlp-full-2014-08-27/'],\
+        stdout=subprocess.PIPE, cwd='/home/santhosh/Downloads/corenlp-python')
+    time.sleep(15)
+    print 'CORE NLP SERVER STARTED AGAIN'
+    return corenlp_process
 
 def readGenreBasedFilesAndRunCoreNLP(genre_to_file_list, meta_dict):
-    server = jsonrpclib.Server("http://localhost:8080")
     for genre in genre_to_file_list:
+        corenlp_process = createCORENLPServer()
         meta_dict_for_genre = meta_dict[genre]
         print '--------------------------------------------------------------'
         print 'Number of Files in genre ', genre, ' : ', len(meta_dict_for_genre)
-        count = 0
+        processed = 0
+        alreadyProcessed = 0
         for genre_file_path, genre_file_name in genre_to_file_list[genre]:
             core_nlp_path = os.path.dirname(genre_file_path).replace(NOVEL_BASE, CORE_NLP_BASE)
             if not os.path.exists(core_nlp_path):
                 os.makedirs(core_nlp_path)
             corenlp_result_file = os.path.join(core_nlp_path,\
                                                genre_file_name.replace('.txt','_corenlp1000.txt'))
-            count += 1
-            print 'Currently Processing File in genre ', genre,' : ', count, 'File Name:',  corenlp_result_file
+            print 'Currently Processing File in genre ', genre, 'File Name:',  corenlp_result_file
             if os.path.isfile(corenlp_result_file):
+                alreadyProcessed += 1
                 continue
+            if (processed % 3) == 0:
+                corenlp_process.kill()
+                corenlp_process = createCORENLPServer()
+            print 'Already Processed File Count:', processed+alreadyProcessed
             with open(genre_file_path) as f:
                 filelines = f.readlines()
                 # print type(filelines), len(filelines), filelines, genre_file_path
@@ -166,9 +180,12 @@ def readGenreBasedFilesAndRunCoreNLP(genre_to_file_list, meta_dict):
                 string = ''
                 for line in filelines:
                     string += line+'\n'
+                server = jsonrpclib.Server("http://localhost:8080")
                 result = loads(server.parse(string))
                 with open(corenlp_result_file, 'w') as f1:
                     f1.write(str(result))
+            processed += 1
+        corenlp_process.kill()
 
 def extractMetaDataAndPOSTagsDistributions():
     start_time = datetime.now()
