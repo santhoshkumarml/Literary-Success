@@ -11,6 +11,7 @@ import jsonrpclib
 from simplejson import loads
 import time
 import subprocess
+from datetime import datetime
 
 nltk.data.path.append('/media/santhosh/Data/workspace/nltk_data')
 
@@ -146,7 +147,7 @@ def createCORENLPServer():
         ['python', 'corenlp/corenlp.py','-S','stanford-corenlp-full-2014-08-27/'],\
         stdout=subprocess.PIPE, cwd='/home/santhosh/Downloads/corenlp-python')
     time.sleep(15)
-    print 'CORE NLP SERVER STARTED AGAIN'
+    print 'CORE NLP SERVER STARTED AGAIN AT:', datetime.now()
     return corenlp_process
 
 def readGenreBasedFilesAndRunCoreNLP(genre_to_file_list, meta_dict):
