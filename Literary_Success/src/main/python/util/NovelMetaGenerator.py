@@ -91,11 +91,11 @@ def loadInfoFromMetaFile():
                     processMetaInfoRecord(meta_dict[dataset], FAILURE_PATTERN, line)
     return meta_dict
 
-def listGenreWiseFileNames():
-    genre_folders = [f for f in os.listdir(NOVEL_BASE) if not os.path.isfile(os.path.join(NOVEL_BASE,f))]
+def listGenreWiseFileNames(base_folder):
+    genre_folders = [f for f in os.listdir(base_folder) if not os.path.isfile(os.path.join(NOVEL_BASE,f))]
     genre_to_file_list = dict()
     for genre_folder in genre_folders:
-        fullPath_to_genre_folder = os.path.join(NOVEL_BASE,genre_folder)
+        fullPath_to_genre_folder = os.path.join(base_folder, genre_folder)
         multiFolderLevels = [os.path.join(fullPath_to_genre_folder,f)\
                               for f in os.listdir(fullPath_to_genre_folder)\
                               if not os.path.isfile(os.path.join(fullPath_to_genre_folder,f))]
@@ -206,7 +206,7 @@ def extractMetaDataAndPOSTagsDistributions():
 def extractMetaDataAndTagCoreNLP():
     start_time = datetime.now()
     meta_dict = loadInfoFromMetaFile()
-    genre_to_file_list = listGenreWiseFileNames()
+    genre_to_file_list = listGenreWiseFileNames(NOVEL_BASE)
     readGenreBasedFilesAndRunCoreNLP(genre_to_file_list, meta_dict)
     end_time = datetime.now()
     print 'Total Time', end_time - start_time
