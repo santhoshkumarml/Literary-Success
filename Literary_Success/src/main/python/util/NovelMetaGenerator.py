@@ -168,7 +168,7 @@ def readGenreBasedFilesAndRunCoreNLP(genre_to_file_list, meta_dict):
             if os.path.isfile(corenlp_result_file):
                 alreadyProcessed += 1
                 continue
-            if (processed % 3) == 0:
+            if (processed % 2) == 0:
                 corenlp_process.kill()
                 corenlp_process = createCORENLPServer()
             print 'Already Processed File Count:', processed+alreadyProcessed
