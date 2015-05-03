@@ -16,27 +16,28 @@ def extractFeatures():
                                                                  NovelMetaGenerator.SYNSET_WSD_TAG_PATTERN)
     fs = conn_files_dict['Adventure Stories']
     feature_dict = dict()
+
     for genre_file_path, genre_file_name in fs:
-     all_entropy = []
-     f = open(genre_file_path)
-     lines  = f.readlines()
-     f.close()
-     assert  len(lines) == 1
-     line = lines[0]
-     data = []
-     line = 'data='+line
-     exec(line)
-     for line in data:
+        all_entropy = []
+        f = open(genre_file_path)
+        lines  = f.readlines()
+        f.close()
+        assert  len(lines) == 1
+        line = lines[0]
+        data = []
+        line = 'data='+line
+        exec(line)
+        for line in data:
          for word, synset in line:
             if synset == None:
                 continue
             entropy = calculate_Entropy([p for p, syn in synset])
             if entropy > 0:
                 all_entropy.append(entropy)
-    avg_entropy = 0.0
-    if len(all_entropy) > 0:
-        avg_entropy  = sum(all_entropy)/len(all_entropy)
-    feature_dict[genre_file_name] = avg_entropy
+        avg_entropy = 0.0
+        if len(all_entropy) > 0:
+            avg_entropy = sum(all_entropy)/len(all_entropy)
+        feature_dict[genre_file_name] = avg_entropy
     return feature_dict
 
 print extractFeatures()
