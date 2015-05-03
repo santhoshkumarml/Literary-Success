@@ -23,6 +23,7 @@ def getConsituentTreeDistribution(core_nlp_files):
             line = lines[0]
             line = 'dictionary=' + line
             exec(line)
+            # print genre_file_path, dictionary
             sentences = dictionary[SENTENCES]
             for sent in sentences:
                 parsetree = sent[PARSE_TREE]
@@ -102,6 +103,9 @@ def doClassification():
     core_nlp_files_dict = NovelMetaGenerator.listGenreWiseFileNames(NovelMetaGenerator.CORE_NLP_BASE)
     novel_files_dict = NovelMetaGenerator.listGenreWiseFileNames(NovelMetaGenerator.CORE_NLP_BASE)
     for genre in core_nlp_files_dict:
+        print genre
+        if genre == 'Science Fiction' or genre == 'Short Stories':
+            continue
         meta_dict_for_genre = meta_dict[genre]
         core_nlp_files = core_nlp_files_dict[genre]
         production_dict_for_files, diff_productions = getConsituentTreeDistribution(core_nlp_files)
@@ -110,7 +114,6 @@ def doClassification():
         log_r = LogisticRegression()
         train_data, train_result = train_data
         test_data, test_result = test_data
-
         log_r.fit(train_data, train_result)
         accuracy = 0.0
         for i in range(len(test_data)):
@@ -119,8 +122,6 @@ def doClassification():
                 accuracy += 1.0
         accuracy = accuracy/len(test_data)
         print genre, ':', accuracy
-        import sys
-        sys.exit()
 
 
 doClassification()
