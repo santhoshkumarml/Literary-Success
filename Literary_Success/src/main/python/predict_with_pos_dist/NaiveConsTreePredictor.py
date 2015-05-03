@@ -4,6 +4,7 @@ from util import NovelMetaGenerator
 from nltk.tree import ParentedTree
 import numpy
 import random
+from nltk.corpus.reader import Synset
 from sklearn.linear_model import LogisticRegression
 
 def getConsituentTreeDistribution(core_nlp_files):
@@ -117,6 +118,3 @@ def doClassification():
                 accuracy += 1.0
         accuracy = accuracy/len(test_data)
         print genre, ':', accuracy
-
-
-doClassification()
