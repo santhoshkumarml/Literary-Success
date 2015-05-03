@@ -28,10 +28,15 @@ def extractFeatures():
      exec(line)
      for line in data:
          for word, synset in line:
-            entropy = calculate_Entropy([p for p, synset in synset])
+            if synset == None:
+                continue
+            entropy = calculate_Entropy([p for p, syn in synset])
             if entropy > 0:
                 all_entropy.append(entropy)
-    feature_dict[genre_file_name] = sum(all_entropy)/len(all_entropy)
+    avg_entropy = 0.0
+    if len(all_entropy) > 0:
+        avg_entropy  = sum(all_entropy)/len(all_entropy)
+    feature_dict[genre_file_name] = avg_entropy
     return feature_dict
 
 print extractFeatures()
