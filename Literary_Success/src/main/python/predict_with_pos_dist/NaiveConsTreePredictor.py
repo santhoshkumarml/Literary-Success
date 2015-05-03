@@ -43,7 +43,8 @@ def getConsituentTreeDistribution(core_nlp_files):
 def normalize_dist(production_dict_for_files, diff_productions):
     for f in production_dict_for_files:
         prod_dict_for_file = production_dict_for_files[f]
-        production_dict_for_files[f] = {k:(prod_dict_for_file[k]/diff_productions[k]) if k in prod_dict_for_file else 0.0\
+        sum_of_production_rules = sum(prod_dict_for_file.values())
+        production_dict_for_files[f] = {k:(prod_dict_for_file[k]/sum_of_production_rules) if k in prod_dict_for_file else 0.0\
                                         for k in diff_productions.keys()}
     return production_dict_for_files
 
