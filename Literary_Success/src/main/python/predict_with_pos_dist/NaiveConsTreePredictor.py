@@ -103,7 +103,6 @@ def doClassification():
     core_nlp_files_dict = NovelMetaGenerator.listGenreWiseFileNames(NovelMetaGenerator.CORE_NLP_BASE)
     novel_files_dict = NovelMetaGenerator.listGenreWiseFileNames(NovelMetaGenerator.CORE_NLP_BASE)
     for genre in core_nlp_files_dict:
-        print genre
         if genre == 'Science Fiction' or genre == 'Short Stories':
             continue
         meta_dict_for_genre = meta_dict[genre]
