@@ -105,7 +105,7 @@ def loadInfoFromMetaFile():
                     processMetaInfoRecord(meta_dict[dataset], FAILURE_PATTERN, line)
     return meta_dict
 
-def listGenreWiseFileNames(base_folder, pattern):
+def listGenreWiseFileNames(base_folder, pattern=None):
     genre_folders = [f for f in os.listdir(base_folder) if not os.path.isfile(os.path.join(NOVEL_BASE,f))]
     genre_to_file_list = dict()
     for genre_folder in genre_folders:
@@ -120,7 +120,9 @@ def listGenreWiseFileNames(base_folder, pattern):
         onlyFiles = [(os.path.join(success_failure_folder,f),f)\
                                     for success_failure_folder in success_failure_folders\
                                     for f in os.listdir(success_failure_folder)\
-                                    if os.path.isfile(os.path.join(success_failure_folder,f))]
+                                    if (os.path.isfile(os.path.join(success_failure_folder,f)) and pattern != None \
+                                        and re.match(pattern, f))
+                                    or (os.path.isfile(os.path.join(success_failure_folder,f)) and pattern == None)]
         genre_file_dict_key = genre_folder.replace("_",' ')
         genre_to_file_list[genre_file_dict_key] = onlyFiles
         
@@ -234,28 +236,28 @@ def readGenreFilesAndTagWordsForSenses(core_nlp_files):
             synset_wsd_file = genre_file_path.replace(CORE_NLP_FILE_SUFFIX, SYNSET_WSD_FILE_SUFFIX)
             if os.path.exists(synset_wsd_file):
                 continue
+
+            lines = f.readlines()
+            assert len(lines) == 1
+            line = lines[0]
+            line = 'dictionary=' + line
+            exec(line)
+            sentences = dictionary[SENTENCES]
+            output = []
+            for sent in sentences:
+                parsetree = sent[PARSE_TREE]
+                t = ParentedTree.fromstring(parsetree)
+                sentence_result = []
+                txt = sent[TXT]
+                for word, pos in t.pos():
+                    if re.match(POS_PATTERN_FOR_WSD, pos) and pos not in ['DT', 'CC', 'CD']:
+                        ranked_synsets = lsk.adapted_lesk(unicode(txt), unicode(word))
+                        result = (word, ranked_synsets)
+                        sentence_result.append(result)
+                output.append(sentence_result)
+
             with open(synset_wsd_file, 'w') as f1:
-                lines = f.readlines()
-                assert len(lines) == 1
-                line = lines[0]
-                line = 'dictionary=' + line
-                exec(line)
-                sentences = dictionary[SENTENCES]
-                output = dict()
-                for sent in sentences:
-                    parsetree = sent[PARSE_TREE]
-                    t = ParentedTree.fromstring(parsetree)
-                    sentence_result = []
-                    txt = sent[TXT]
-                    for word, pos in t.pos():
-                        if re.match(POS_PATTERN_FOR_WSD, pos) and pos not in ['DT', 'CC', 'CD']:
-                            ranked_synsets = lsk.adapted_lesk(unicode(txt), unicode(word))
-                            result = (word, ranked_synsets)
-                            sentence_result.append(result)
-                f1.write(str(sentence_result))
-                f1.write('\n')
-        import sys
-        sys.exit()
+                f1.write(str(output))
 
 
 
@@ -264,8 +266,6 @@ def extractSysetDistributionForWORDS():
     start_time = datetime.now()
     meta_dict = loadInfoFromMetaFile()
     core_nlp_files_dict = listGenreWiseFileNames(CORE_NLP_BASE, CORE_NLP_TAG_FILES_PATTERN)
-    readGenreFilesAndTagWordsForSenses(core_nlp_files_dict['Love Stories'])
+    readGenreFilesAndTagWordsForSenses(core_nlp_files_dict['Adventure Stories'])
     end_time = datetime.now()
     print 'Total Time', end_time - start_time
-
-extractSysetDistributionForWORDS()

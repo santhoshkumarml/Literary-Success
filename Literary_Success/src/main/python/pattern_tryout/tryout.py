@@ -19,4 +19,15 @@ nltk.data.path.append('/media/santhosh/Data/workspace/nltk_data')
 # print s
 
 from pywsd import lesk as lsk
-print lsk.adapted_lesk(u'I killed cricket', u'cricket')
+from nltk.corpus import wordnet as wn
+from nltk.corpus.reader.wordnet import Synset
+
+data = lsk.adapted_lesk(u'I killed Cricket', u'Cricket')
+for word, ranked_synsets in data:
+    probs = 0.0
+    for ranked_synset in ranked_synsets:
+        prob, syn = ranked_synset
+        print prob
+        probs += prob
+    print probs
+
