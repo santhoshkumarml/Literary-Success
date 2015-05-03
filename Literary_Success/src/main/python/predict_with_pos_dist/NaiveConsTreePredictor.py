@@ -6,11 +6,6 @@ import numpy
 import random
 from sklearn.linear_model import LogisticRegression
 
-SENTENCES = 'sentences'
-PARSE_TREE = 'parsetree'
-TXT = 'text'
-TUPLES = 'tuples'
-
 def getConsituentTreeDistribution(core_nlp_files):
     diff_productions = dict()
     production_dict_for_files = dict()
@@ -24,9 +19,9 @@ def getConsituentTreeDistribution(core_nlp_files):
             line = 'dictionary=' + line
             exec(line)
             # print genre_file_path, dictionary
-            sentences = dictionary[SENTENCES]
+            sentences = dictionary[NovelMetaGenerator.SENTENCES]
             for sent in sentences:
-                parsetree = sent[PARSE_TREE]
+                parsetree = sent[NovelMetaGenerator.PARSE_TREE]
                 t = ParentedTree.fromstring(parsetree)
                 prods = t.productions()
                 for prod in prods:

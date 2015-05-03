@@ -4,7 +4,6 @@ __author__ = 'santhosh'
 import nltk
 from nltk import *
 import re
-from datetime import datetime
 from nltk.tag.stanford import POSTagger
 
 import jsonrpclib
@@ -12,6 +11,7 @@ from simplejson import loads
 import time
 import subprocess
 from datetime import datetime
+from pywsd import lesk as lsk
 
 nltk.data.path.append('/media/santhosh/Data/workspace/nltk_data')
 
@@ -23,6 +23,19 @@ folder_pattern = r'[*]+.*[*]+'
 entry_pattern = r'(SUCCESS|FAILURE).+:.+'
 SUCCESS_PATTERN = 'SUCCESS'
 FAILURE_PATTERN = 'FAILURE'
+POS_PATTERN_FOR_WSD = r'.*[A-Z]+.*'
+
+CORE_NLP_FILE_SUFFIX = '_corenlp'
+SYNSET_WSD_FILE_SUFFIX = '_wsd'
+CORE_NLP_TAG_FILES_PATTERN = '.*'+CORE_NLP_FILE_SUFFIX+'.*'
+SYNSET_WSD_TAG_PATTERN = '.*'+SYNSET_WSD_FILE_SUFFIX+'.*'
+
+
+SENTENCES = 'sentences'
+PARSE_TREE = 'parsetree'
+TXT = 'text'
+TUPLES = 'tuples'
+
 
 KEY_TOKENS = 'FileName|Title|Author|Language|DownloadCount'
 LANG_TOKEN = 'Language'
@@ -92,7 +105,7 @@ def loadInfoFromMetaFile():
                     processMetaInfoRecord(meta_dict[dataset], FAILURE_PATTERN, line)
     return meta_dict
 
-def listGenreWiseFileNames(base_folder):
+def listGenreWiseFileNames(base_folder, pattern):
     genre_folders = [f for f in os.listdir(base_folder) if not os.path.isfile(os.path.join(NOVEL_BASE,f))]
     genre_to_file_list = dict()
     for genre_folder in genre_folders:
@@ -211,3 +224,48 @@ def extractMetaDataAndTagCoreNLP():
     readGenreBasedFilesAndRunCoreNLP(genre_to_file_list, meta_dict)
     end_time = datetime.now()
     print 'Total Time', end_time - start_time
+
+
+def readGenreFilesAndTagWordsForSenses(core_nlp_files):
+    for genre_file_path, genre_file_name in core_nlp_files:
+        dictionary = dict()
+        print genre_file_path
+        with open(genre_file_path) as f:
+            synset_wsd_file = genre_file_path.replace(CORE_NLP_FILE_SUFFIX, SYNSET_WSD_FILE_SUFFIX)
+            if os.path.exists(synset_wsd_file):
+                continue
+            with open(synset_wsd_file, 'w') as f1:
+                lines = f.readlines()
+                assert len(lines) == 1
+                line = lines[0]
+                line = 'dictionary=' + line
+                exec(line)
+                sentences = dictionary[SENTENCES]
+                output = dict()
+                for sent in sentences:
+                    parsetree = sent[PARSE_TREE]
+                    t = ParentedTree.fromstring(parsetree)
+                    sentence_result = []
+                    txt = sent[TXT]
+                    for word, pos in t.pos():
+                        if re.match(POS_PATTERN_FOR_WSD, pos) and pos not in ['DT', 'CC', 'CD']:
+                            ranked_synsets = lsk.adapted_lesk(unicode(txt), unicode(word))
+                            result = (word, ranked_synsets)
+                            sentence_result.append(result)
+                f1.write(str(sentence_result))
+                f1.write('\n')
+        import sys
+        sys.exit()
+
+
+
+
+def extractSysetDistributionForWORDS():
+    start_time = datetime.now()
+    meta_dict = loadInfoFromMetaFile()
+    core_nlp_files_dict = listGenreWiseFileNames(CORE_NLP_BASE, CORE_NLP_TAG_FILES_PATTERN)
+    readGenreFilesAndTagWordsForSenses(core_nlp_files_dict['Love Stories'])
+    end_time = datetime.now()
+    print 'Total Time', end_time - start_time
+
+extractSysetDistributionForWORDS()
