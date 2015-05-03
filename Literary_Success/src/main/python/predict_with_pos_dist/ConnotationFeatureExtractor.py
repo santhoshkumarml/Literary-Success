@@ -20,9 +20,9 @@ def extractFeatures():
     for genre_file_path, genre_file_name in fs:
         all_entropy = []
         f = open(genre_file_path)
-        lines  = f.readlines()
+        lines = f.readlines()
         f.close()
-        assert  len(lines) == 1
+        assert len(lines) == 1
         line = lines[0]
         data = []
         line = 'data='+line
