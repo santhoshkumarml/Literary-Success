@@ -211,5 +211,3 @@ def extractMetaDataAndTagCoreNLP():
     readGenreBasedFilesAndRunCoreNLP(genre_to_file_list, meta_dict)
     end_time = datetime.now()
     print 'Total Time', end_time - start_time
-
-extractMetaDataAndTagCoreNLP()

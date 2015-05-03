@@ -5,6 +5,7 @@ import numpy
 import random
 from sklearn.cluster import k_means
 from sklearn.linear_model.logistic import LogisticRegression
+from sklearn.svm import LinearSVC
 
 
 CLASS = 'class'
@@ -99,11 +100,6 @@ def makeClassificationAndMeasureAccuracy(genre_wise_train_data, genre_wise_test_
         accuracy = accuracy/len(test_data)
         accuracy_for_genre[genre] = accuracy
     return  accuracy_for_genre
-
-
-
-
-
 
 
         # def tryclustering():
