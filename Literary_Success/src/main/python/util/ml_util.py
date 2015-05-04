@@ -60,8 +60,6 @@ def splitTrainAndTestData(meta_dict_for_genre, feature_dict, split=0.7, rand_idx
 
     return train_data, train_result, test_data, test_result
 
-
-
 def doClassfication(train_data, train_result, test_data, test_result):
     log_r = LogisticRegression()
     log_r.fit(train_data, train_result)
