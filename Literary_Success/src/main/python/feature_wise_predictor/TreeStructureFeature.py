@@ -3,15 +3,26 @@ __author__ = 'santhosh'
 from util import NovelMetaGenerator
 from nltk.tree import ParentedTree
 from util import ml_util
+from feature_wise_predictor import SyntaticTreeFeaturesUtil
 from util import utils
 import numpy
 import re
 
-SENTENCES = 'sentences'
-PARSE_TREE = 'parsetree'
-TXT = 'text'
-TUPLES = 'tuples'
+HEIGHT = 'HEIGHT'
+WIDTH = 'WIDTH'
+COMPLEX_COMPOUND_FEATURE = 'COMPLEX_COMPOUND'
+LOOSE_PERIODIC = 'LOOSE_PERIODIC'
+TREE_IMBALANCE = 'TREE_IMBALANCE'
+ALL_FEATURES = set([HEIGHT, WIDTH, COMPLEX_COMPOUND_FEATURE, LOOSE_PERIODIC, TREE_IMBALANCE])
 
+
+SIMPLE = 'SIMPLE'
+COMPOUND = 'COMPOUND'
+COMPLEX = 'COMPLEX'
+COMPLEX_COMPOUND = 'COMPLEX-COMPOUND'
+OTHER = 'OTHER'
+
+DIFF_TYPES = set([SIMPLE, COMPLEX, COMPOUND,  COMPLEX_COMPOUND, OTHER])
 
 def getSuccessFailure():
     core_nlp_files_dict = NovelMetaGenerator.listGenreWiseFileNames(\
@@ -44,9 +55,9 @@ def getTree(core_nlp_files_dict, genre):
             line = lines[0]
             line = 'dictionary=' + line
             exec(line)
-            sentences = dictionary[SENTENCES]
+            sentences = dictionary[SyntaticTreeFeaturesUtil.SENTENCES]
             for sent in sentences:
-                parsetree = sent[PARSE_TREE]
+                parsetree = sent[SyntaticTreeFeaturesUtil.PARSE_TREE]
                 t = ParentedTree.fromstring(parsetree)
                 product[parsetree] = t
         key = files[0].replace(NovelMetaGenerator.CORE_NLP_FILE_SUFFIX, '')
@@ -71,47 +82,32 @@ def doVarianceMeasure(core_nlp_files_dict, genre):
         rules.append(len(diff_productions))
     return (numpy.mean(rules), numpy.std(rules), numpy.var(rules))
 
-def doComplexCompound(core_nlp_files_dict, l, genre):
-    meta_dict = NovelMetaGenerator.loadInfoFromMetaFile()
-    meta_dict_for_genre = meta_dict[genre]
-    productions = getTree(core_nlp_files_dict, genre)
-    featureV =[]
-    label = []
-    for files in meta_dict_for_genre.keys():
-        product = productions[files]
-        types = {'SIMPLE':0, 'COMPLEX':0, 'COMPOUND':0, 'COMPLEX-COMPOUND':0, 'OTHER':0}
-        for sents in product.keys():
-            t = product[sents]
-            types[checkProduction(t)] += 1
-        fv = [types['SIMPLE'], types['COMPLEX'], types['COMPOUND'], types['COMPLEX-COMPOUND']]
-        featureV.append(fv)
-        label.append(l)
-    return featureV, label
 
-
-def checkProduction(tree):
+def checkComplexCompound(tree):
     topLevel = str(tree.productions()[1])
     tags = tree.pos()
     tags = [x[1] for x in tags]
     SBAR = True if 'SBAR' in tags else False
     if re.search('. S .', topLevel.split('>')[1]):
         if not SBAR:
-            return 'COMPOUND'
+            return COMPOUND
         else:
-            return 'COMPLEX-COMPOUND'
+            return COMPLEX_COMPOUND
     else:
         if re.search('. VP .', topLevel.split('>')[1]):
             if not SBAR:
-                return 'SIMPLE'
+                return SIMPLE
             else:
-                return 'COMPLEX'
+                return COMPLEX
     return 'OTHER'
 
 
 
-def extractHeightDistributionFeature(core_nlp_files):
+def extractDeepSyntaticFeature(core_nlp_files, features = None):
+    if not features:
+        features = ALL_FEATURES
     max_ht = 0
-    height_distribution_feature = dict()
+    deep_syntactic_feature_dict = dict()
     for genre_file_path, genre_file_name in core_nlp_files:
         dictionary = dict()
         with open(genre_file_path) as f:
@@ -120,23 +116,44 @@ def extractHeightDistributionFeature(core_nlp_files):
             line = lines[0]
             line = 'dictionary=' + line
             exec(line)
-            # print genre_file_path, dictionary
+
+            key = genre_file_name.replace(NovelMetaGenerator.CORE_NLP_FILE_SUFFIX, '')
+            deep_syntactic_feature_dict[key] = dict()
+
             sentences = dictionary[NovelMetaGenerator.SENTENCES]
             height_feature_for_file = dict()
+            complex_compount_feature_for_file = dict()
             for sent in sentences:
                 parsetree = sent[NovelMetaGenerator.PARSE_TREE]
                 t = ParentedTree.fromstring(parsetree)
-                height = t.height()
-                if height > max_ht:
-                    max_ht = height
-                if height not in height_feature_for_file:
-                    height_feature_for_file[height] = 0.0
-                height_feature_for_file[height] += 1.0
+                if HEIGHT in features:
+                    height = t.height()
+                    if height > max_ht:
+                        max_ht = height
+                    if height not in height_feature_for_file:
+                        height_feature_for_file[height] = 0.0
+                    height_feature_for_file[height] += 1.0
 
-            key = genre_file_name.replace(NovelMetaGenerator.CORE_NLP_FILE_SUFFIX, '')
-            height_distribution_feature[key] = height_feature_for_file
-    height_distribution_feature = utils.normalize_dist(height_distribution_feature, set([i for i in range(1, max_ht)]))
-    return height_distribution_feature
+                if COMPLEX_COMPOUND_FEATURE in features:
+                    compex_compond_type = checkComplexCompound(t)
+                    if compex_compond_type not in complex_compount_feature_for_file:
+                        complex_compount_feature_for_file[compex_compond_type] = 0.0
+                    complex_compount_feature_for_file[compex_compond_type] += 1.0
+
+            #Normalize and Induce Feature
+            if HEIGHT in deep_syntactic_feature_dict:
+                height_feature_for_file = utils.normalize_dist(height_feature_for_file,\
+                                                               set([i for i in range(1, max_ht)]))
+                for k in height_feature_for_file.keys():
+                    deep_syntactic_feature_dict[key][HEIGHT+str(k)] = height_feature_for_file[k]
+
+            if COMPLEX_COMPOUND_FEATURE in deep_syntactic_feature_dict:
+                complex_compound_feature_for_file = utils.normalize_dist(complex_compound_feature_for_file,\
+                                                               DIFF_TYPES)
+                for k in complex_compount_feature_for_file.keys():
+                    deep_syntactic_feature_dict[key][k] = complex_compound_feature_for_file[k]
+
+    return deep_syntactic_feature_dict
 
 
 def doClassification():
@@ -156,7 +173,7 @@ def doClassification():
             continue
         meta_dict_for_genre = meta_dict[genre]
         core_nlp_files = core_nlp_files_dict[genre]
-        feature_dict = extractHeightDistributionFeature(core_nlp_files)
+        feature_dict = extractDeepSyntaticFeature(core_nlp_files)
         train_data, train_result, test_data, test_result =\
             ml_util.splitTrainAndTestData(meta_dict_for_genre, feature_dict)
         accuracy = ml_util.doClassfication(train_data, train_result, test_data, test_result)
