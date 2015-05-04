@@ -1,9 +1,7 @@
 __author__ = 'santhosh'
 
 from util import NovelMetaGenerator
-import SyntaticTreeFeaturesUtil
-from nltk.corpus.reader import Synset
-from sklearn.linear_model import LogisticRegression
+from util import ml_util
 import math
 
 def calculate_Entropy(dist):
@@ -52,7 +50,7 @@ def doClassification():
         core_nlp_files = conn_files_dict[genre]
         feature_dict = extractConnotationFeatures(core_nlp_files)
         train_data, train_result, test_data, test_result =\
-            SyntaticTreeFeaturesUtil.splitTrainAndTestData(meta_dict_for_genre, feature_dict)
+            ml_util.splitTrainAndTestData(meta_dict_for_genre, feature_dict)
 
 
 
