@@ -166,8 +166,10 @@ def createCORENLPServer():
     print 'CORE NLP SERVER STARTED AGAIN AT:', datetime.now()
     return corenlp_process
 
-def readGenreBasedFilesAndRunCoreNLP(genre_to_file_list, meta_dict):
+def readGenreBasedFilesAndRunCoreNLP(genre_to_file_list, meta_dict, genres_to_be_tackled=set()):
     for genre in genre_to_file_list:
+        if len(genres_to_be_tackled) == 0 or genre not in genres_to_be_tackled:
+            continue
         corenlp_process = createCORENLPServer()
         meta_dict_for_genre = meta_dict[genre]
         print '--------------------------------------------------------------'
@@ -224,7 +226,7 @@ def extractMetaDataAndTagCoreNLP():
     start_time = datetime.now()
     meta_dict = loadInfoFromMetaFile()
     genre_to_file_list = listGenreWiseFileNames(NOVEL_BASE)
-    readGenreBasedFilesAndRunCoreNLP(genre_to_file_list, meta_dict)
+    readGenreBasedFilesAndRunCoreNLP(genre_to_file_list, meta_dict, set(['Science Fiction']))
     end_time = datetime.now()
     print 'Total Time', end_time - start_time
 
@@ -268,3 +270,5 @@ def extractSysetDistributionForWORDS():
     readGenreFilesAndTagWordsForSenses(core_nlp_files_dict['Adventure Stories'])
     end_time = datetime.now()
     print 'Total Time', end_time - start_time
+
+# extractMetaDataAndTagCoreNLP()

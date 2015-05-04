@@ -7,4 +7,4 @@ from feature_wise_predictor import ConnotationFeatureUtil
 
 POSFeatureUtil.doClassification()
 SyntaticTreeFeaturesUtil.doClassification()
-# ConnotationFeatureUtil.doClassification()
+ConnotationFeatureUtil.doClassification()

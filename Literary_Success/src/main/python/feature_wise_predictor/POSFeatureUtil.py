@@ -31,7 +31,6 @@ def extractFeaturesFromCoreNLPFiles(core_nlp_files):
             line = 'dictionary=' + line
             exec(line)
             curr_file_feature = dict()
-            # print genre_file_path, dictionary
             sentences = dictionary[NovelMetaGenerator.SENTENCES]
             for sent in sentences:
                 parsetree = sent[NovelMetaGenerator.PARSE_TREE]
@@ -42,7 +41,8 @@ def extractFeaturesFromCoreNLPFiles(core_nlp_files):
                         curr_file_feature[pos] = 0.0
                     curr_file_feature[pos] += 1.0
                     diff_pos.add(pos)
-            feature_dict[genre_file_name] = curr_file_feature
+            key = genre_file_name.replace(NovelMetaGenerator.CORE_NLP_FILE_SUFFIX, '')
+            feature_dict[key] = curr_file_feature
 
     return feature_dict, diff_pos
 
@@ -53,9 +53,6 @@ def normalize_dist(feature_dict, diff_pos):
         feature_dict[f] = {k:(feature_dict_for_file[k]/sum_of_production_rules) if k in feature_dict_for_file else 0.0\
                                         for k in diff_pos}
     return feature_dict
-
-
-
 
 
 def doClassification(allSentencePOS = False):
@@ -75,6 +72,8 @@ def doClassification(allSentencePOS = False):
                     feature_dict[file_name][pos_tag] = meta_dict_for_genre[file_name][TAGS][pos_tag]
         else:
             core_nlp_files = core_nlp_files_dict[genre]
+            if genre == 'Science Fiction' or genre == 'Short Stories':
+                continue
             feature_dict, diff_pos = extractFeaturesFromCoreNLPFiles(core_nlp_files)
             feature_dict = normalize_dist(feature_dict, diff_pos)
 
