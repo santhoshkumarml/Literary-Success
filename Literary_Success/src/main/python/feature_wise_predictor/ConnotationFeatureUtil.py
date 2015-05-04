@@ -1,7 +1,7 @@
 __author__ = 'santhosh'
 
 from util import NovelMetaGenerator
-import NaiveConsTreePredictor
+import SyntaticTreeFeaturesUtil
 from nltk.corpus.reader import Synset
 from sklearn.linear_model import LogisticRegression
 import math
@@ -52,7 +52,7 @@ def doClassification():
         core_nlp_files = conn_files_dict[genre]
         feature_dict = extractFeatures(core_nlp_files)
         train_data, train_result, test_data, test_result =\
-            NaiveConsTreePredictor.splitTrainAndTestData(meta_dict_for_genre, feature_dict)
+            SyntaticTreeFeaturesUtil.splitTrainAndTestData(meta_dict_for_genre, feature_dict)
 
 
 

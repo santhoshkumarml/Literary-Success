@@ -1,7 +1,10 @@
 __author__ = 'santhosh'
 
 
-from feature_wise_predictor import NaivePOSDictPredictor
-from feature_wise_predictor import NaiveConsTreePredictor
+from feature_wise_predictor import POSFeatureUtil
+from feature_wise_predictor import SyntaticTreeFeaturesUtil
+from feature_wise_predictor import ConnotationFeatureUtil
 
-print NaiveConsTreePredictor.doClassification()
+print POSFeatureUtil.doClassification()
+SyntaticTreeFeaturesUtil.doClassification()
+ConnotationFeatureUtil.doClassification()

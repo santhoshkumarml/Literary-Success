@@ -26,7 +26,6 @@ def readMetaInfo():
 def doClassification():
     meta_dict = readMetaInfo()
     feature_dict = dict()
-    accuracy_for_genre = dict()
     for genre in meta_dict.keys():
         meta_dict_for_genre = meta_dict[genre]
         file_names = [file_name for file_name in meta_dict_for_genre]
@@ -42,5 +41,5 @@ def doClassification():
             ml_util.splitTrainAndTestData(meta_dict_for_genre, feature_dict)
 
         accuracy = ml_util.doClassfication(train_data, train_result, test_data, test_result)
-        accuracy_for_genre[genre] = accuracy
-    return accuracy_for_genre
+        print genre, ':', accuracy
+
