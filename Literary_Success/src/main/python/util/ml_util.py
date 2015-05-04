@@ -24,13 +24,15 @@ def splitTrainAndTestData(meta_dict_for_genre, feature_dict, split=0.7, rand_idx
         train_success_idx = set(random.sample(xrange(total_success_files), success_train_size))
         train_failure_idx = set(random.sample(xrange(total_failure_files), failure_train_size))
     else:
-        for idx in range(0, len(total_success_files)):
+        for idx in range(0, total_success_files):
             if len(train_success_idx) == success_train_size:
-                train_success_idx.add(idx)
+                break
+            train_success_idx.add(idx)
 
-        for idx in range(0, len(total_failure_files)):
+        for idx in range(0, total_failure_files):
             if len(train_failure_idx) == failure_train_size:
-                train_failure_idx.add(idx)
+                break
+            train_failure_idx.add(idx)
 
     train_data, train_result = [], []
     test_data, test_result = [], []

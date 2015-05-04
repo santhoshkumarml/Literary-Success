@@ -51,7 +51,7 @@ def doClassification():
         core_nlp_files = conn_files_dict[genre]
         feature_dict = extractConnotationFeatures(core_nlp_files)
         train_data, train_result, test_data, test_result =\
-            ml_util.splitTrainAndTestData(meta_dict_for_genre, feature_dict)
+            ml_util.splitTrainAndTestData(meta_dict_for_genre, feature_dict, rand_idx=False)
         accuracy = ml_util.doClassfication(train_data, train_result, test_data, test_result)
         print genre, ':', accuracy
 
