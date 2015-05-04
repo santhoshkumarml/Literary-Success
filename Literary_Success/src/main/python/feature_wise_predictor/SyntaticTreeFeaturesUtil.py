@@ -32,7 +32,8 @@ def getConsituentTreeDistribution(core_nlp_files):
                         production_dict[prod] = 0.0
                     diff_productions[prod] += 1.0
                     production_dict[prod] += 1.0
-            production_dict_for_files[genre_file_name.replace('_corenlp1000.txt', '.txt')] = production_dict
+            key = genre_file_name.replace(NovelMetaGenerator.CORE_NLP_FILE_SUFFIX, '')
+            production_dict_for_files[key] = production_dict
     return production_dict_for_files, diff_productions
 
 
