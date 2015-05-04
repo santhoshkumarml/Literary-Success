@@ -5,13 +5,7 @@ import numpy
 import random
 from sklearn.linear_model import LogisticRegression
 
-def splitTrainAndTestData(meta_dict_for_genre, feature_dict, split = 0.7):
-    file_names = [file_name for file_name in meta_dict_for_genre]
-
-    n_samples = len(file_names)
-    n_features = len(feature_dict[file_name].values())
-    data = numpy.zeros(shape=(n_samples, n_features))
-
+def splitTrainAndTestData(meta_dict_for_genre, feature_dict, split=0.7, rand_idx = True):
     class_wise_genre_file = {NovelMetaGenerator.SUCCESS_PATTERN:[],NovelMetaGenerator.FAILURE_PATTERN:[]}
 
     for file_name in meta_dict_for_genre:
@@ -23,16 +17,27 @@ def splitTrainAndTestData(meta_dict_for_genre, feature_dict, split = 0.7):
     total_failure_files = len(class_wise_genre_file[NovelMetaGenerator.FAILURE_PATTERN])
     success_train_size, failure_train_size = int(total_success_files*split), int(total_failure_files*split)
 
-    random_train_success_idx = set(random.sample(xrange(total_success_files), success_train_size))
+    train_success_idx = set()
+    train_failure_idx = set()
 
-    random_train_failure_idx = set(random.sample(xrange(total_failure_files), failure_train_size))
+    if rand_idx:
+        train_success_idx = set(random.sample(xrange(total_success_files), success_train_size))
+        train_failure_idx = set(random.sample(xrange(total_failure_files), failure_train_size))
+    else:
+        for idx in range(0, len(total_success_files)):
+            if len(train_success_idx) == success_train_size:
+                train_success_idx.add(idx)
 
-    train_data, train_result = [],[]
-    test_data, test_result = [],[]
+        for idx in range(0, len(total_failure_files)):
+            if len(train_failure_idx) == failure_train_size:
+                train_failure_idx.add(idx)
+
+    train_data, train_result = [], []
+    test_data, test_result = [], []
 
     for i in range(total_success_files):
             file_name = class_wise_genre_file[NovelMetaGenerator.SUCCESS_PATTERN][i]
-            if i in random_train_success_idx:
+            if i in train_success_idx:
                 train_data.append(list(feature_dict[file_name].values()))
                 train_result.append(1)
             else:
@@ -41,12 +46,17 @@ def splitTrainAndTestData(meta_dict_for_genre, feature_dict, split = 0.7):
 
     for i in range(total_failure_files):
         file_name = class_wise_genre_file[NovelMetaGenerator.FAILURE_PATTERN][i]
-        if i in random_train_failure_idx:
+        if i in train_failure_idx:
             train_data.append(list(feature_dict[file_name].values()))
             train_result.append(0)
         else:
             test_data.append(list(feature_dict[file_name].values()))
             test_result.append(0)
+
+    train_data = numpy.array(train_data)
+    train_result = numpy.array(train_result)
+    test_data = numpy.array(test_data)
+    test_result = numpy.array(test_result)
 
     return train_data, train_result, test_data, test_result
 
