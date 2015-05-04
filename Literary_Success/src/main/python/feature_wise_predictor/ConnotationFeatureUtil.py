@@ -6,7 +6,7 @@ import math
 from nltk.corpus.reader import Synset
 
 def calculate_Entropy(dist):
-    entropy_list = [-p*math.log(p) for p in dist if p != 0]
+    entropy_list = [-p*math.log(p, 2) for p in dist if p != 0]
     if len(entropy_list) > 0:
         return sum(entropy_list)
     else:
