@@ -59,9 +59,7 @@ def doClassification():
         meta_dict_for_genre = meta_dict[genre]
         core_nlp_files = core_nlp_files_dict[genre]
         feature_dict = extractSyntacticFeatures(core_nlp_files)
-
         train_data, train_result, test_data, test_result =\
             ml_util.splitTrainAndTestData(meta_dict_for_genre, feature_dict)
-
         accuracy = ml_util.doClassfication(train_data, train_result, test_data, test_result)
         print genre, ':', accuracy

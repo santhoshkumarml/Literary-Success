@@ -7,7 +7,7 @@ from feature_wise_predictor import ConnotationFeatureUtil
 from feature_wise_predictor import TreeStructureFeature
 
 # POSFeatureUtil.doClassification()
-SyntaticTreeFeaturesUtil.doClassification()
+# SyntaticTreeFeaturesUtil.doClassification()
 # ConnotationFeatureUtil.doClassification()
 TreeStructureFeature.doClassification()
 

@@ -140,18 +140,31 @@ def extractDeepSyntaticFeature(core_nlp_files, features = None):
                         complex_compound_feature_for_file[compex_compond_type] = 0.0
                     complex_compound_feature_for_file[compex_compond_type] += 1.0
 
-            #Normalize and Induce Feature
             if HEIGHT in features:
-                height_feature_for_file = utils.normalize_dist(height_feature_for_file,\
-                                                               set([i for i in range(1, max_ht)]))
-                for k in height_feature_for_file.keys():
-                    deep_syntactic_feature_dict[key][HEIGHT+str(k)] = height_feature_for_file[k]
+                deep_syntactic_feature_dict[key][HEIGHT] = height_feature_for_file
 
             if COMPLEX_COMPOUND_FEATURE in features:
-                complex_compound_feature_for_file = utils.normalize_dist(complex_compound_feature_for_file,\
-                                                               DIFF_TYPES)
-                for k in complex_compound_feature_for_file.keys():
-                    deep_syntactic_feature_dict[key][k] = complex_compound_feature_for_file[k]
+                deep_syntactic_feature_dict[key][COMPLEX_COMPOUND_FEATURE] = complex_compound_feature_for_file
+
+        #Normalize and Induce Feature
+    for f in deep_syntactic_feature_dict.keys():
+        if HEIGHT in features:
+            deep_syntactic_feature_dict[f][HEIGHT] =\
+                utils.normalize_dist(deep_syntactic_feature_dict[f][HEIGHT], [i for i in range(1, max_ht)])
+
+            for k in deep_syntactic_feature_dict[f][HEIGHT].keys():
+                deep_syntactic_feature_dict[f][HEIGHT+str(k)] = deep_syntactic_feature_dict[f][HEIGHT][k]
+
+            del deep_syntactic_feature_dict[f][HEIGHT]
+
+        if COMPLEX_COMPOUND_FEATURE in features:
+            deep_syntactic_feature_dict[f][COMPLEX_COMPOUND_FEATURE] =\
+                utils.normalize_dist(deep_syntactic_feature_dict[f][COMPLEX_COMPOUND_FEATURE], DIFF_TYPES)
+
+            for k in deep_syntactic_feature_dict[f][COMPLEX_COMPOUND_FEATURE].keys():
+                deep_syntactic_feature_dict[f][k] = deep_syntactic_feature_dict[f][COMPLEX_COMPOUND_FEATURE][k]
+
+            del deep_syntactic_feature_dict[f][COMPLEX_COMPOUND_FEATURE]
 
     return deep_syntactic_feature_dict
 
@@ -173,10 +186,8 @@ def doClassification():
             continue
         meta_dict_for_genre = meta_dict[genre]
         core_nlp_files = core_nlp_files_dict[genre]
-        feature_dict = extractDeepSyntaticFeature(core_nlp_files, set([HEIGHT]))
+        feature_dict = extractDeepSyntaticFeature(core_nlp_files)
         train_data, train_result, test_data, test_result =\
             ml_util.splitTrainAndTestData(meta_dict_for_genre, feature_dict)
-        print train_data
-        print train_result
         accuracy = ml_util.doClassfication(train_data, train_result, test_data, test_result)
         print genre, ':', accuracy
