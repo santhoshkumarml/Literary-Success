@@ -39,7 +39,6 @@ def extractConnotationFeatures(conn_files):
     return feature_dict
 
 
-
 def doClassification():
     conn_files_dict = NovelMetaGenerator.listGenreWiseFileNames(NovelMetaGenerator.CORE_NLP_BASE,\
                                                                 NovelMetaGenerator.SYNSET_WSD_TAG_PATTERN)
@@ -54,6 +53,3 @@ def doClassification():
             ml_util.splitTrainAndTestData(meta_dict_for_genre, feature_dict, rand_idx=False)
         accuracy = ml_util.doClassfication(train_data, train_result, test_data, test_result)
         print genre, ':', accuracy
-
-
-
