@@ -3,9 +3,6 @@ __author__ = 'santhosh'
 from util import NovelMetaGenerator
 from util import ml_util
 from nltk.tree import ParentedTree
-import numpy
-import random
-from nltk.corpus.reader import Synset
 
 def getConsituentTreeDistribution(core_nlp_files):
     diff_productions = dict()
@@ -47,7 +44,8 @@ def normalize_dist(production_dict_for_files, diff_productions):
 
 def doClassification():
     meta_dict = NovelMetaGenerator.loadInfoFromMetaFile()
-    core_nlp_files_dict = NovelMetaGenerator.listGenreWiseFileNames(NovelMetaGenerator.CORE_NLP_BASE)
+    core_nlp_files_dict = NovelMetaGenerator.listGenreWiseFileNames(NovelMetaGenerator.CORE_NLP_BASE,\
+                                                                    NovelMetaGenerator.CORE_NLP_TAG_FILES_PATTERN)
     for genre in core_nlp_files_dict:
         if genre == 'Science Fiction' or genre == 'Short Stories':
             continue
