@@ -40,19 +40,19 @@ def splitTrainAndTestData(meta_dict_for_genre, feature_dict, split=0.7, rand_idx
     for i in range(total_success_files):
             file_name = class_wise_genre_file[NovelMetaGenerator.SUCCESS_PATTERN][i]
             if i in train_success_idx:
-                train_data.append(list(feature_dict[file_name].values()))
+                train_data.append([val for val in feature_dict[file_name].values()])
                 train_result.append(1)
             else:
-                test_data.append(list(feature_dict[file_name].values()))
+                test_data.append([val for val in feature_dict[file_name].values()])
                 test_result.append(1)
 
     for i in range(total_failure_files):
         file_name = class_wise_genre_file[NovelMetaGenerator.FAILURE_PATTERN][i]
         if i in train_failure_idx:
-            train_data.append(list(feature_dict[file_name].values()))
+            train_data.append([val for val in feature_dict[file_name].values()])
             train_result.append(0)
         else:
-            test_data.append(list(feature_dict[file_name].values()))
+            test_data.append([val for val in feature_dict[file_name].values()])
             test_result.append(0)
 
     train_data = numpy.array(train_data)

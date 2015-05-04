@@ -9,7 +9,8 @@ def normalize_dist(production_dict_for_files, diff_productions):
     for f in production_dict_for_files:
         prod_dict_for_file = production_dict_for_files[f]
         sum_of_production_rules = sum(prod_dict_for_file.values())
-        production_dict_for_files[f] = {k:(prod_dict_for_file[k]/sum_of_production_rules) if k in prod_dict_for_file else 0.0\
+        production_dict_for_files[f] = {k:(prod_dict_for_file[k]/sum_of_production_rules)\
+                                        if k in prod_dict_for_file else 0.0 \
                                         for k in diff_productions.keys()}
     return production_dict_for_files
 
@@ -58,6 +59,7 @@ def doClassification():
         meta_dict_for_genre = meta_dict[genre]
         core_nlp_files = core_nlp_files_dict[genre]
         feature_dict = extractSyntacticFeatures(core_nlp_files)
+
         train_data, train_result, test_data, test_result =\
             ml_util.splitTrainAndTestData(meta_dict_for_genre, feature_dict)
 

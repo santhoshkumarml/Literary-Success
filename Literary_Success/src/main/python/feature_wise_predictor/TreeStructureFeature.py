@@ -173,11 +173,10 @@ def doClassification():
             continue
         meta_dict_for_genre = meta_dict[genre]
         core_nlp_files = core_nlp_files_dict[genre]
-        feature_dict = extractDeepSyntaticFeature(core_nlp_files)
+        feature_dict = extractDeepSyntaticFeature(core_nlp_files, set([HEIGHT]))
         train_data, train_result, test_data, test_result =\
             ml_util.splitTrainAndTestData(meta_dict_for_genre, feature_dict)
-        print feature_dict
+        print train_data
+        print train_result
         accuracy = ml_util.doClassfication(train_data, train_result, test_data, test_result)
         print genre, ':', accuracy
-
-doClassification()
