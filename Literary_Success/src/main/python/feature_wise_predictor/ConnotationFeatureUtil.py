@@ -3,6 +3,7 @@ __author__ = 'santhosh'
 from util import NovelMetaGenerator
 from util import ml_util
 import math
+from nltk.corpus.reader import Synset
 
 def calculate_Entropy(dist):
     entropy_list = [-p*math.log(p) for p in dist if p != 0]
