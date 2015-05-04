@@ -13,7 +13,7 @@ def calculate_Entropy(dist):
     else:
         return 0
 
-def extractFeatures(conn_files):
+def extractConnotationFeatures(conn_files):
     feature_dict = dict()
     for genre_file_path, genre_file_name in conn_files:
         all_entropy = []
@@ -50,7 +50,7 @@ def doClassification():
             continue
         meta_dict_for_genre = meta_dict[genre]
         core_nlp_files = conn_files_dict[genre]
-        feature_dict = extractFeatures(core_nlp_files)
+        feature_dict = extractConnotationFeatures(core_nlp_files)
         train_data, train_result, test_data, test_result =\
             SyntaticTreeFeaturesUtil.splitTrainAndTestData(meta_dict_for_genre, feature_dict)
 

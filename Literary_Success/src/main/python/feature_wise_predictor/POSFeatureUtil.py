@@ -18,8 +18,15 @@ def readMetaInfo():
         exec (content)
         return meta_dict
 
+def normalize_dist(feature_dict, diff_pos):
+    for f in feature_dict:
+        feature_dict_for_file = feature_dict[f]
+        sum_of_production_rules = sum(feature_dict_for_file.values())
+        feature_dict[f] = {k:(feature_dict_for_file[k]/sum_of_production_rules) if k in feature_dict_for_file else 0.0\
+                                        for k in diff_pos}
+    return feature_dict
 
-def extractFeaturesFromCoreNLPFiles(core_nlp_files):
+def extractPOSFeaturesFromCoreNLPFiles(core_nlp_files):
     diff_pos = set()
     feature_dict = dict()
     for genre_file_path, genre_file_name in core_nlp_files:
@@ -43,16 +50,9 @@ def extractFeaturesFromCoreNLPFiles(core_nlp_files):
                     diff_pos.add(pos)
             key = genre_file_name.replace(NovelMetaGenerator.CORE_NLP_FILE_SUFFIX, '')
             feature_dict[key] = curr_file_feature
-
-    return feature_dict, diff_pos
-
-def normalize_dist(feature_dict, diff_pos):
-    for f in feature_dict:
-        feature_dict_for_file = feature_dict[f]
-        sum_of_production_rules = sum(feature_dict_for_file.values())
-        feature_dict[f] = {k:(feature_dict_for_file[k]/sum_of_production_rules) if k in feature_dict_for_file else 0.0\
-                                        for k in diff_pos}
+    feature_dict = normalize_dist(feature_dict, diff_pos)
     return feature_dict
+
 
 
 def doClassification(allSentencePOS = False):
@@ -74,8 +74,7 @@ def doClassification(allSentencePOS = False):
             core_nlp_files = core_nlp_files_dict[genre]
             if genre == 'Science Fiction' or genre == 'Short Stories':
                 continue
-            feature_dict, diff_pos = extractFeaturesFromCoreNLPFiles(core_nlp_files)
-            feature_dict = normalize_dist(feature_dict, diff_pos)
+            feature_dict = extractPOSFeaturesFromCoreNLPFiles(core_nlp_files)
 
         train_data, train_result, test_data, test_result =\
             ml_util.splitTrainAndTestData(meta_dict_for_genre, feature_dict)

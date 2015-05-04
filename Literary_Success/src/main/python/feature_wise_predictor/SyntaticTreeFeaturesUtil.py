@@ -4,7 +4,17 @@ from util import NovelMetaGenerator
 from util import ml_util
 from nltk.tree import ParentedTree
 
-def getConsituentTreeDistribution(core_nlp_files):
+
+def normalize_dist(production_dict_for_files, diff_productions):
+    for f in production_dict_for_files:
+        prod_dict_for_file = production_dict_for_files[f]
+        sum_of_production_rules = sum(prod_dict_for_file.values())
+        production_dict_for_files[f] = {k:(prod_dict_for_file[k]/sum_of_production_rules) if k in prod_dict_for_file else 0.0\
+                                        for k in diff_productions.keys()}
+    return production_dict_for_files
+
+
+def extractSyntacticFeatures(core_nlp_files):
     diff_productions = dict()
     production_dict_for_files = dict()
     for genre_file_path, genre_file_name in core_nlp_files:
@@ -31,16 +41,12 @@ def getConsituentTreeDistribution(core_nlp_files):
                     production_dict[prod] += 1.0
             key = genre_file_name.replace(NovelMetaGenerator.CORE_NLP_FILE_SUFFIX, '')
             production_dict_for_files[key] = production_dict
-    return production_dict_for_files, diff_productions
 
-
-def normalize_dist(production_dict_for_files, diff_productions):
-    for f in production_dict_for_files:
-        prod_dict_for_file = production_dict_for_files[f]
-        sum_of_production_rules = sum(prod_dict_for_file.values())
-        production_dict_for_files[f] = {k:(prod_dict_for_file[k]/sum_of_production_rules) if k in prod_dict_for_file else 0.0\
-                                        for k in diff_productions.keys()}
+    production_dict_for_files = normalize_dist(production_dict_for_files, diff_productions)
     return production_dict_for_files
+
+
+
 
 def doClassification():
     meta_dict = NovelMetaGenerator.loadInfoFromMetaFile()
@@ -51,9 +57,9 @@ def doClassification():
             continue
         meta_dict_for_genre = meta_dict[genre]
         core_nlp_files = core_nlp_files_dict[genre]
-        production_dict_for_files, diff_productions = getConsituentTreeDistribution(core_nlp_files)
-        production_dict_for_files = normalize_dist(production_dict_for_files, diff_productions)
-        train_data, train_result, test_data, test_result = ml_util.splitTrainAndTestData(meta_dict_for_genre, production_dict_for_files)
+        feature_dict = extractSyntacticFeatures(core_nlp_files)
+        train_data, train_result, test_data, test_result =\
+            ml_util.splitTrainAndTestData(meta_dict_for_genre, feature_dict)
 
         accuracy = ml_util.doClassfication(train_data, train_result, test_data, test_result)
         print genre, ':', accuracy
