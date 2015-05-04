@@ -14,7 +14,9 @@ TUPLES = 'tuples'
 
 
 def getSuccessFailure():
-    core_nlp_files_dict = NovelMetaGenerator.listGenreWiseFileNames(Novels)
+    core_nlp_files_dict = NovelMetaGenerator.listGenreWiseFileNames(\
+        NovelMetaGenerator.CORE_NLP_BASE,\
+        NovelMetaGenerator.SYNSET_WSD_FILE_SUFFIX)
     success_files, failure_files = {}, {}
     for x in core_nlp_files_dict.keys():
         W, L = [], []
@@ -114,7 +116,6 @@ def shuffle(data, labels):
     testlabels = [labels[i] for i in x[start:end]]
     return (traindata,trainlabels,testdata, testlabels)
 
-Novels = '/home/sriganesh/Documents/NLP/NLP_Project/core_nlp'
 #doClassification()
 meta_dict = NovelMetaGenerator.loadInfoFromMetaFile()
 x, y = getSuccessFailure()
@@ -125,11 +126,5 @@ for genre in x:
     fv2, lb2 = doComplexCompound(y,'F',genre)
     fv1.extend(fv2)
     lb1.extend(lb2)
-    ml_util.splitTrainAndTestData(meta_dict[genre], )
-    print genre, "Accuracy:", accuracy_score(label, mylabel)
-#p1 = doVarianceMeasure(x)
-#p2 = doVarianceMeasure(y)
-#for x in p1.keys():
-#    print x
-#    print "Success:", p1[x]
-#    print "Failure:", p2[x]
+    # ml_util.splitTrainAndTestData(meta_dict[genre], )
+    # print genre, "Accuracy:", accuracy_score(label, mylabel)
