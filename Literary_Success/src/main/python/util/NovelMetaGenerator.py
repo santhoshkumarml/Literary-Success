@@ -147,7 +147,7 @@ def readGenreBasedFilesAndTagWords(genre_to_file_list, meta_dict, tagger=None):
                 else:
                     pos_tagged_lines = nltk.pos_tag_sents(tokens)
                 for pos_tags in pos_tagged_lines:
-                    for word,tag in pos_tags:
+                    for word, tag in pos_tags:
                         if tag not in pos_tag_dict:
                             pos_tag_dict[tag] = 0.0
                         pos_tag_dict[tag]+= 1.0
