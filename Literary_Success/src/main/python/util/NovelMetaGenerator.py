@@ -13,6 +13,7 @@ import subprocess
 from datetime import datetime
 from pywsd import lesk as lsk
 
+
 nltk.data.path.append('/media/santhosh/Data/workspace/nltk_data')
 
 NOVEL_BASE = '/media/santhosh/Data/workspace/nlp_project/novels'
@@ -25,8 +26,8 @@ SUCCESS_PATTERN = 'SUCCESS'
 FAILURE_PATTERN = 'FAILURE'
 POS_PATTERN_FOR_WSD = r'.*[A-Z]+.*'
 
-CORE_NLP_FILE_SUFFIX = '_corenlp'
-SYNSET_WSD_FILE_SUFFIX = '_wsd'
+CORE_NLP_FILE_SUFFIX = '_corenlp1000'
+SYNSET_WSD_FILE_SUFFIX = '_wsd1000'
 CORE_NLP_TAG_FILES_PATTERN = '.*'+CORE_NLP_FILE_SUFFIX+'.*'
 SYNSET_WSD_TAG_PATTERN = '.*'+SYNSET_WSD_FILE_SUFFIX+'.*'
 
@@ -258,8 +259,6 @@ def readGenreFilesAndTagWordsForSenses(core_nlp_files):
 
             with open(synset_wsd_file, 'w') as f1:
                 f1.write(str(output))
-
-
 
 
 def extractSysetDistributionForWORDS():

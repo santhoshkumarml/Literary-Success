@@ -35,8 +35,8 @@ def extractFeatures(conn_files):
         avg_entropy = 0.0
         if len(all_entropy) > 0:
             avg_entropy = sum(all_entropy)/len(all_entropy)
-        key = genre_file_name.replace('_wsd1000.txt', '.txt')
-        feature_dict[key] = {'AVG_ENTROPY':avg_entropy}
+        key = genre_file_name.replace(NovelMetaGenerator.SYNSET_WSD_FILE_SUFFIX, '')
+        feature_dict[key] = {'AVG_ENTROPY': avg_entropy}
     return feature_dict
 
 
@@ -51,21 +51,8 @@ def doClassification():
         meta_dict_for_genre = meta_dict[genre]
         core_nlp_files = conn_files_dict[genre]
         feature_dict = extractFeatures(core_nlp_files)
-        train_data, test_data = NaiveConsTreePredictor.splitTrainAndTestData(meta_dict_for_genre,\
-                                                                             feature_dict)
-        log_r = LogisticRegression()
-        train_data, train_result = train_data
-        test_data, test_result = test_data
-        log_r.fit(train_data, train_result)
-        accuracy = 0.0
-        for i in range(len(test_data)):
-            label = int(log_r.predict(test_data[i]))
-            if label == test_result[i]:
-                accuracy += 1.0
-        accuracy = accuracy/len(test_data)
-        print genre, ':', accuracy
+        train_data, train_result, test_data, test_result =\
+            NaiveConsTreePredictor.splitTrainAndTestData(meta_dict_for_genre, feature_dict)
 
-
-doClassification()
 
 
