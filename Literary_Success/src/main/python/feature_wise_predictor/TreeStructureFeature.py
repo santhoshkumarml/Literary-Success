@@ -249,7 +249,7 @@ def extractDeepSyntaticFeature(core_nlp_files, features = None):
 
             if VERTICAL_TREE_IMBALANCE in features:
                 deep_syntactic_feature_dict[key][VERTICAL_TREE_IMBALANCE] = vertical_imbalance_feature_for_file
-                
+
     #Normalize and Induce Feature
     for f in deep_syntactic_feature_dict.keys():
         if HEIGHT in features:
