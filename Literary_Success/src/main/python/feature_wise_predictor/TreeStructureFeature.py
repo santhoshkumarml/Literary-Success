@@ -11,18 +11,23 @@ import re
 HEIGHT = 'HEIGHT'
 WIDTH = 'WIDTH'
 COMPLEX_COMPOUND_FEATURE = 'COMPLEX_COMPOUND'
-LOOSE_PERIODIC = 'LOOSE_PERIODIC'
+LOOSE_PERIODIC_FEATURE = 'LOOSE_PERIODIC'
 TREE_IMBALANCE = 'TREE_IMBALANCE'
-ALL_FEATURES = set([HEIGHT, WIDTH, COMPLEX_COMPOUND_FEATURE, LOOSE_PERIODIC, TREE_IMBALANCE])
+ALL_FEATURES = set([HEIGHT, WIDTH, COMPLEX_COMPOUND_FEATURE, LOOSE_PERIODIC_FEATURE, TREE_IMBALANCE])
 
 
 SIMPLE = 'SIMPLE'
 COMPOUND = 'COMPOUND'
 COMPLEX = 'COMPLEX'
 COMPLEX_COMPOUND = 'COMPLEX-COMPOUND'
-OTHER = 'OTHER'
+COMPLEX_COMPOUND_OTHER = 'COMPLEX_COMPOUND_OTHER'
 
-DIFF_TYPES = set([SIMPLE, COMPLEX, COMPOUND,  COMPLEX_COMPOUND, OTHER])
+PERIODIC = 'PERIODIC'
+LOOSE = 'LOOSE'
+LOOSE_PERIODIC_OTHER = 'LOOSE_PERIODIC_OTHER'
+
+DIFF_CPX_TYPES = set([SIMPLE, COMPLEX, COMPOUND,  COMPLEX_COMPOUND, COMPLEX_COMPOUND_OTHER])
+DIFF_LP_TYPES = set([LOOSE, PERIODIC, LOOSE_PERIODIC_OTHER])
 
 def getSuccessFailure():
     core_nlp_files_dict = NovelMetaGenerator.listGenreWiseFileNames(\
@@ -92,12 +97,12 @@ def checkLoosePeriodic(tree):
         SSBAR = True if re.search('. S .', topLevel) or re.search('. SBAR .', topLevel) else False
         if not VP:
             if SSBAR:
-                return 'PERIODIC'
+                return PERIODIC
         else:
             if SSBAR:
-                return 'LOOSE'
+                return LOOSE
         k += 1
-    return 'OTHER'
+    return LOOSE_PERIODIC_OTHER
 
 
 def checkComplexCompound(tree):
@@ -116,7 +121,7 @@ def checkComplexCompound(tree):
                 return SIMPLE
             else:
                 return COMPLEX
-    return 'OTHER'
+    return COMPLEX_COMPOUND_OTHER
 
 
 
@@ -140,6 +145,7 @@ def extractDeepSyntaticFeature(core_nlp_files, features = None):
             sentences = dictionary[NovelMetaGenerator.SENTENCES]
             height_feature_for_file = dict()
             complex_compound_feature_for_file = dict()
+            loose_periodic_feature_for_file = dict()
             for sent in sentences:
                 parsetree = sent[NovelMetaGenerator.PARSE_TREE]
                 t = ParentedTree.fromstring(parsetree)
@@ -157,11 +163,20 @@ def extractDeepSyntaticFeature(core_nlp_files, features = None):
                         complex_compound_feature_for_file[compex_compond_type] = 0.0
                     complex_compound_feature_for_file[compex_compond_type] += 1.0
 
+                if LOOSE_PERIODIC_FEATURE in features:
+                    loose_periodic_type = checkComplexCompound(t)
+                    if loose_periodic_type not in loose_periodic_feature_for_file:
+                        loose_periodic_feature_for_file[loose_periodic_type] = 0.0
+                    loose_periodic_feature_for_file[loose_periodic_type] += 1.0
+
             if HEIGHT in features:
                 deep_syntactic_feature_dict[key][HEIGHT] = height_feature_for_file
 
             if COMPLEX_COMPOUND_FEATURE in features:
                 deep_syntactic_feature_dict[key][COMPLEX_COMPOUND_FEATURE] = complex_compound_feature_for_file
+
+            if LOOSE_PERIODIC_FEATURE in features:
+                deep_syntactic_feature_dict[key][LOOSE_PERIODIC_FEATURE] = loose_periodic_feature_for_file
 
         #Normalize and Induce Feature
     for f in deep_syntactic_feature_dict.keys():
@@ -176,12 +191,21 @@ def extractDeepSyntaticFeature(core_nlp_files, features = None):
 
         if COMPLEX_COMPOUND_FEATURE in features:
             deep_syntactic_feature_dict[f][COMPLEX_COMPOUND_FEATURE] =\
-                utils.normalize_dist(deep_syntactic_feature_dict[f][COMPLEX_COMPOUND_FEATURE], DIFF_TYPES)
+                utils.normalize_dist(deep_syntactic_feature_dict[f][COMPLEX_COMPOUND_FEATURE], DIFF_CPX_TYPES)
 
             for k in deep_syntactic_feature_dict[f][COMPLEX_COMPOUND_FEATURE].keys():
                 deep_syntactic_feature_dict[f][k] = deep_syntactic_feature_dict[f][COMPLEX_COMPOUND_FEATURE][k]
 
             del deep_syntactic_feature_dict[f][COMPLEX_COMPOUND_FEATURE]
+
+        if LOOSE_PERIODIC_FEATURE in features:
+            deep_syntactic_feature_dict[f][LOOSE_PERIODIC_FEATURE] =\
+                utils.normalize_dist(deep_syntactic_feature_dict[f][LOOSE_PERIODIC_FEATURE], DIFF_LP_TYPES)
+
+            for k in deep_syntactic_feature_dict[f][LOOSE_PERIODIC_FEATURE].keys():
+                deep_syntactic_feature_dict[f][k] = deep_syntactic_feature_dict[f][LOOSE_PERIODIC_FEATURE][k]
+
+            del deep_syntactic_feature_dict[f][LOOSE_PERIODIC_FEATURE]
 
     return deep_syntactic_feature_dict
 
