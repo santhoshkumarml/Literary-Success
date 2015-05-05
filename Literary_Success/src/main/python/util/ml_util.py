@@ -4,6 +4,7 @@ import NovelMetaGenerator
 import numpy
 import random
 from sklearn.linear_model import LogisticRegression
+from sklearn.svm import LinearSVC
 
 def splitTrainAndTestData(meta_dict_for_genre, feature_dict, split=0.7, rand_idx = True):
     class_wise_genre_file = {NovelMetaGenerator.SUCCESS_PATTERN:[],NovelMetaGenerator.FAILURE_PATTERN:[]}
@@ -63,7 +64,7 @@ def splitTrainAndTestData(meta_dict_for_genre, feature_dict, split=0.7, rand_idx
     return train_data, train_result, test_data, test_result
 
 def doClassfication(train_data, train_result, test_data, test_result):
-    log_r = LogisticRegression()
+    log_r = LinearSVC(C=0.5)
     log_r.fit(train_data, train_result)
     accuracy = 0.0
     for i in range(len(test_data)):

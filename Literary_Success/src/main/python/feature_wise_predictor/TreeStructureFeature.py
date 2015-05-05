@@ -159,12 +159,16 @@ def extractDeepSyntaticFeature(core_nlp_files, features = None):
 
                 if COMPLEX_COMPOUND_FEATURE in features:
                     compex_compond_type = checkComplexCompound(t)
+                    if compex_compond_type == COMPLEX_COMPOUND_OTHER:
+                        continue
                     if compex_compond_type not in complex_compound_feature_for_file:
                         complex_compound_feature_for_file[compex_compond_type] = 0.0
                     complex_compound_feature_for_file[compex_compond_type] += 1.0
 
                 if LOOSE_PERIODIC_FEATURE in features:
-                    loose_periodic_type = checkComplexCompound(t)
+                    loose_periodic_type = checkLoosePeriodic(t)
+                    if loose_periodic_type == LOOSE_PERIODIC_OTHER:
+                        continue
                     if loose_periodic_type not in loose_periodic_feature_for_file:
                         loose_periodic_feature_for_file[loose_periodic_type] = 0.0
                     loose_periodic_feature_for_file[loose_periodic_type] += 1.0
@@ -227,7 +231,7 @@ def doClassification():
             continue
         meta_dict_for_genre = meta_dict[genre]
         core_nlp_files = core_nlp_files_dict[genre]
-        feature_dict = extractDeepSyntaticFeature(core_nlp_files)
+        feature_dict = extractDeepSyntaticFeature(core_nlp_files, features=set([LOOSE_PERIODIC_FEATURE]))
         train_data, train_result, test_data, test_result =\
             ml_util.splitTrainAndTestData(meta_dict_for_genre, feature_dict)
         accuracy = ml_util.doClassfication(train_data, train_result, test_data, test_result)
