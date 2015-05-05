@@ -18,7 +18,7 @@ nltk.data.path.append('/media/santhosh/Data/workspace/nltk_data')
 
 NOVEL_BASE = '/media/santhosh/Data/workspace/nlp_project/novels'
 NOVEL_META = 'novel_meta.txt'
-CORE_NLP_BASE = '/media/santhosh/Data/workspace/nlp_project/core_nlp'
+CORE_NLP_BASE = '/media/santhosh/Data/workspace/nlp_project/core_nlp1'
 dataset_pattern = r'[*]+DATASET:.*[*]+'
 folder_pattern = r'[*]+.*[*]+'
 entry_pattern = r'(SUCCESS|FAILURE).+:.+'
@@ -167,10 +167,11 @@ def createCORENLPServer():
     return corenlp_process
 
 def readGenreBasedFilesAndRunCoreNLP(genre_to_file_list, meta_dict, genres_to_be_tackled=set()):
+    sent_detector = nltk.data.load('tokenizers/punkt/english.pickle')
     for genre in genre_to_file_list:
         if len(genres_to_be_tackled) == 0 or genre not in genres_to_be_tackled:
             continue
-        corenlp_process = createCORENLPServer()
+        # corenlp_process = createCORENLPServer()
         meta_dict_for_genre = meta_dict[genre]
         print '--------------------------------------------------------------'
         print 'Number of Files in genre ', genre, ' : ', len(meta_dict_for_genre)
@@ -186,25 +187,28 @@ def readGenreBasedFilesAndRunCoreNLP(genre_to_file_list, meta_dict, genres_to_be
             if os.path.isfile(corenlp_result_file):
                 alreadyProcessed += 1
                 continue
-            if (processed % 2) == 0:
-                corenlp_process.kill()
-                corenlp_process = createCORENLPServer()
+            # if (processed % 2) == 0:
+            #     corenlp_process.kill()
+            #     corenlp_process = createCORENLPServer()
             print 'Already Processed File Count:', processed+alreadyProcessed
             with open(genre_file_path) as f:
-                filelines = f.readlines()
+                filelines = f.read()
+                filelines = filelines.replace('\r\n', ' ')
+                filelines = filelines.replace('\n', ' ')
+                sents = sent_detector.tokenize(filelines.decode('utf-8').strip())
                 # print type(filelines), len(filelines), filelines, genre_file_path
                 # filelines = filelines[0]
                 # print filelines
-                filelines = filelines[:500]
+                sents = sents[:100]
                 string = ''
-                for line in filelines:
-                    string += line+'\n'
-                server = jsonrpclib.Server("http://localhost:8080")
-                result = loads(server.parse(string))
+                for line in sents:
+                    server = jsonrpclib.Server("http://localhost:8080")
+                    result = loads(server.parse(line))
+                    string += str(result)+'\n'
                 with open(corenlp_result_file, 'w') as f1:
-                    f1.write(str(result))
+                    f1.write(string)
             processed += 1
-        corenlp_process.kill()
+        # corenlp_process.kill()
 
 def extractMetaDataAndPOSTagsDistributions():
     start_time = datetime.now()
@@ -222,11 +226,13 @@ def extractMetaDataAndPOSTagsDistributions():
     end_time = datetime.now()
     print 'Total Time', end_time - start_time
 
-def extractMetaDataAndTagCoreNLP():
+def extractMetaDataAndTagCoreNLP(genres=None):
+    if genres == None:
+        genres = set(['Love Stories'])
     start_time = datetime.now()
     meta_dict = loadInfoFromMetaFile()
     genre_to_file_list = listGenreWiseFileNames(NOVEL_BASE)
-    readGenreBasedFilesAndRunCoreNLP(genre_to_file_list, meta_dict, set(['Science Fiction']))
+    readGenreBasedFilesAndRunCoreNLP(genre_to_file_list, meta_dict, genres)
     end_time = datetime.now()
     print 'Total Time', end_time - start_time
 
