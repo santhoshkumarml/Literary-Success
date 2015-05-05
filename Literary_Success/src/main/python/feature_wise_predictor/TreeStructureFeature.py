@@ -83,6 +83,23 @@ def doVarianceMeasure(core_nlp_files_dict, genre):
     return (numpy.mean(rules), numpy.std(rules), numpy.var(rules))
 
 
+def checkLoosePeriodic(tree):
+    k = 1
+    Ltop = len(str(tree.productions()[1]).split('>')[1].strip().strip('.').strip(',').split())
+    while k <= Ltop:
+        topLevel = str(tree.productions()[k]).split('>')[1]
+        VP = True if re.search('. VP .', topLevel) else False
+        SSBAR = True if re.search('. S .', topLevel) or re.search('. SBAR .', topLevel) else False
+        if not VP:
+            if SSBAR:
+                return 'PERIODIC'
+        else:
+            if SSBAR:
+                return 'LOOSE'
+        k += 1
+    return 'OTHER'
+
+
 def checkComplexCompound(tree):
     topLevel = str(tree.productions()[1])
     tags = tree.pos()
