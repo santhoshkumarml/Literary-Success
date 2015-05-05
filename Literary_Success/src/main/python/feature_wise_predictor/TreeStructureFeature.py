@@ -12,8 +12,10 @@ HEIGHT = 'HEIGHT'
 WIDTH = 'WIDTH'
 COMPLEX_COMPOUND_FEATURE = 'COMPLEX_COMPOUND'
 LOOSE_PERIODIC_FEATURE = 'LOOSE_PERIODIC'
-TREE_IMBALANCE = 'TREE_IMBALANCE'
-ALL_FEATURES = set([HEIGHT, WIDTH, COMPLEX_COMPOUND_FEATURE, LOOSE_PERIODIC_FEATURE, TREE_IMBALANCE])
+HORIZONTAL_TREE_IMBALANCE = 'HORIZONTAL_TREE_IMBALANCE'
+VERTICAL_TREE_IMBALANCE = 'VERTICAL_TREE_IMBALANCE'
+ALL_FEATURES = set([HEIGHT, WIDTH, COMPLEX_COMPOUND_FEATURE, LOOSE_PERIODIC_FEATURE,\
+                    HORIZONTAL_TREE_IMBALANCE, VERTICAL_TREE_IMBALANCE])
 
 
 SIMPLE = 'SIMPLE'
@@ -123,6 +125,39 @@ def checkComplexCompound(tree):
                 return COMPLEX
     return COMPLEX_COMPOUND_OTHER
 
+def getFurcationNodesAndHeight(tree):
+    furcation_node_dict = dict()
+    if len(tree) >= 2:
+        if tree.label() != 'ROOT':
+            furcation_node_dict[str(tree)] = tree.height()
+        for child in tree:
+            f_nodes_for_child = getFurcationNodesAndHeight(child)
+            for k in f_nodes_for_child:
+                furcation_node_dict[k] = f_nodes_for_child[k]
+    return furcation_node_dict
+
+
+def vertical_imbalance(furcation_node_dict):
+    max_sd = 0
+    for node in furcation_node_dict:
+        node = ParentedTree.fromstring(node)
+        child_heights = numpy.array([child.height() for child in node])
+        sd = numpy.std(child_heights)
+        if sd > max_sd:
+            max_sd = sd
+    return max_sd
+
+
+def horizontal_imbalance(furcation_node_dict):
+    max_sd = 0
+    for node in furcation_node_dict:
+        node = ParentedTree.fromstring(node)
+        child_widhts = numpy.array([len(child.leaves()) for child in node])
+        sd = numpy.std(child_widhts)
+        if sd > max_sd:
+            max_sd = sd
+    return max_sd
+
 
 
 def extractDeepSyntaticFeature(core_nlp_files, features = None):
@@ -146,8 +181,15 @@ def extractDeepSyntaticFeature(core_nlp_files, features = None):
             height_feature_for_file = dict()
             complex_compound_feature_for_file = dict()
             loose_periodic_feature_for_file = dict()
+            horizontal_imbalance_feature_for_file = dict()
+            vertical_imbalance_feature_for_file = dict()
+
+            max_sent_count = 0
+            sent_count = 0
             for sent in sentences:
+                sent_count += 1
                 parsetree = sent[NovelMetaGenerator.PARSE_TREE]
+                txt = sent[NovelMetaGenerator.TXT]
                 t = ParentedTree.fromstring(parsetree)
                 if HEIGHT in features:
                     height = t.height()
@@ -173,6 +215,26 @@ def extractDeepSyntaticFeature(core_nlp_files, features = None):
                         loose_periodic_feature_for_file[loose_periodic_type] = 0.0
                     loose_periodic_feature_for_file[loose_periodic_type] += 1.0
 
+                furcation_node_dict = getFurcationNodesAndHeight(t)
+                if len(furcation_node_dict.keys()) > 0:
+                    print furcation_node_dict, genre_file_path
+
+                if HORIZONTAL_TREE_IMBALANCE in features:
+                    horizontal_imbalance_sent = horizontal_imbalance(furcation_node_dict)
+                    horizontal_imbalance_feature_for_file[HORIZONTAL_TREE_IMBALANCE+str(sent_count)] =\
+                        horizontal_imbalance_sent
+
+                if VERTICAL_TREE_IMBALANCE in features:
+                    vertical_imbalance_sent = vertical_imbalance(furcation_node_dict)
+                    vertical_imbalance_feature_for_file[VERTICAL_TREE_IMBALANCE+str(sent_count)] =\
+                        vertical_imbalance_sent
+
+            if sent_count > max_sent_count:
+                max_sent_count = sent_count
+
+            # print genre_file_path
+            # print txt
+
             if HEIGHT in features:
                 deep_syntactic_feature_dict[key][HEIGHT] = height_feature_for_file
 
@@ -182,7 +244,13 @@ def extractDeepSyntaticFeature(core_nlp_files, features = None):
             if LOOSE_PERIODIC_FEATURE in features:
                 deep_syntactic_feature_dict[key][LOOSE_PERIODIC_FEATURE] = loose_periodic_feature_for_file
 
-        #Normalize and Induce Feature
+            if HORIZONTAL_TREE_IMBALANCE in features:
+                deep_syntactic_feature_dict[key][HORIZONTAL_TREE_IMBALANCE] = horizontal_imbalance_feature_for_file
+
+            if VERTICAL_TREE_IMBALANCE in features:
+                deep_syntactic_feature_dict[key][VERTICAL_TREE_IMBALANCE] = vertical_imbalance_feature_for_file
+                
+    #Normalize and Induce Feature
     for f in deep_syntactic_feature_dict.keys():
         if HEIGHT in features:
             deep_syntactic_feature_dict[f][HEIGHT] =\
@@ -211,6 +279,24 @@ def extractDeepSyntaticFeature(core_nlp_files, features = None):
 
             del deep_syntactic_feature_dict[f][LOOSE_PERIODIC_FEATURE]
 
+        if HORIZONTAL_TREE_IMBALANCE in features:
+            deep_syntactic_feature_dict[f][HORIZONTAL_TREE_IMBALANCE] =\
+                utils.normalize_dist(deep_syntactic_feature_dict[f][HORIZONTAL_TREE_IMBALANCE], [HORIZONTAL_TREE_IMBALANCE+str(i) for i in range(1, max_sent_count+1)])
+
+            for k in deep_syntactic_feature_dict[f][HORIZONTAL_TREE_IMBALANCE].keys():
+                deep_syntactic_feature_dict[f][k] = deep_syntactic_feature_dict[f][HORIZONTAL_TREE_IMBALANCE][k]
+
+            del deep_syntactic_feature_dict[f][HORIZONTAL_TREE_IMBALANCE]
+
+        if VERTICAL_TREE_IMBALANCE in features:
+            deep_syntactic_feature_dict[f][VERTICAL_TREE_IMBALANCE] =\
+                utils.normalize_dist(deep_syntactic_feature_dict[f][VERTICAL_TREE_IMBALANCE], [VERTICAL_TREE_IMBALANCE+str(i) for i in range(1, max_sent_count+1)])
+
+            for k in deep_syntactic_feature_dict[f][VERTICAL_TREE_IMBALANCE].keys():
+                deep_syntactic_feature_dict[f][k] = deep_syntactic_feature_dict[f][VERTICAL_TREE_IMBALANCE][k]
+
+            del deep_syntactic_feature_dict[f][VERTICAL_TREE_IMBALANCE]
+
     return deep_syntactic_feature_dict
 
 
@@ -218,21 +304,20 @@ def doClassification():
     meta_dict = NovelMetaGenerator.loadInfoFromMetaFile()
     core_nlp_files_dict = NovelMetaGenerator.listGenreWiseFileNames(NovelMetaGenerator.CORE_NLP_BASE,\
                                                                     NovelMetaGenerator.CORE_NLP_TAG_FILES_PATTERN)
-    # x, y = getSuccessFailure()
-    # for genre in x:
-    #     if genre == 'Science Fiction' or genre == 'Short Stories':
-    #         continue
-    #     fv1, lb1 = doComplexCompound(x,'S',genre)
-    #     fv2, lb2 = doComplexCompound(y,'F',genre)
-    #     fv1.extend(fv2)
-    #     lb1.extend(lb2)
     for genre in meta_dict.keys():
         if genre == 'Science Fiction' or genre == 'Short Stories':
             continue
         meta_dict_for_genre = meta_dict[genre]
         core_nlp_files = core_nlp_files_dict[genre]
-        feature_dict = extractDeepSyntaticFeature(core_nlp_files, features=set([LOOSE_PERIODIC_FEATURE]))
+        fs = set([HORIZONTAL_TREE_IMBALANCE, VERTICAL_TREE_IMBALANCE])
+        feature_dict = extractDeepSyntaticFeature(core_nlp_files, features=fs)
         train_data, train_result, test_data, test_result =\
             ml_util.splitTrainAndTestData(meta_dict_for_genre, feature_dict)
         accuracy = ml_util.doClassfication(train_data, train_result, test_data, test_result)
         print genre, ':', accuracy
+
+
+# ptree = ParentedTree.fromstring('(ROOT (S (NP (JJ Congressional) \
+#     (NNS representatives)) (VP (VBP are) (VP (VBN motivated) \
+#     (PP (IN by) (NP (NP (ADJ shiny) (NNS money))))))) (. .))')
+# ptree.draw()
