@@ -18,7 +18,7 @@ nltk.data.path.append('/media/santhosh/Data/workspace/nltk_data')
 
 NOVEL_BASE = '/media/santhosh/Data/workspace/nlp_project/novels'
 NOVEL_META = 'novel_meta.txt'
-CORE_NLP_BASE = '/media/santhosh/Data/workspace/nlp_project/Correct Sent Tag'
+CORE_NLP_BASE = '/media/santhosh/Data/workspace/nlp_project/core_nlp'
 dataset_pattern = r'[*]+DATASET:.*[*]+'
 folder_pattern = r'[*]+.*[*]+'
 entry_pattern = r'(SUCCESS|FAILURE).+:.+'
@@ -199,7 +199,7 @@ def readGenreBasedFilesAndRunCoreNLP(genre_to_file_list, meta_dict, genres_to_be
                 # print type(filelines), len(filelines), filelines, genre_file_path
                 # filelines = filelines[0]
                 # print filelines
-                sents = sents[:100]
+                sents = sents[:1000]
                 string = ''
                 for line in sents:
                     server = jsonrpclib.Server("http://localhost:8080")
@@ -228,7 +228,7 @@ def extractMetaDataAndPOSTagsDistributions():
 
 def extractMetaDataAndTagCoreNLP(genres=None):
     if genres == None:
-        genres = set(['Love Stories'])
+        genres = set(['Adventure Stories'])
     start_time = datetime.now()
     meta_dict = loadInfoFromMetaFile()
     genre_to_file_list = listGenreWiseFileNames(NOVEL_BASE)

@@ -13,8 +13,8 @@ from util import ml_util
 # ConnotationFeatureUtil.doClassification()
 # TreeStructureFeature.doClassification()
 
-# from util import NovelMetaGenerator
-# NovelMetaGenerator.extractMetaDataAndTagCoreNLP()
+from util import NovelMetaGenerator
+NovelMetaGenerator.extractMetaDataAndTagCoreNLP()
 
 # import nltk
 # import jsonrpclib
@@ -99,5 +99,5 @@ from util import ml_util
 #     print height_feature_for_file
 #     print horizontal_imbalance_feature_for_file
 #     print vertical_imbalance_feature_for_file
-ConnotationFeatureUtil.doClassification()
+# ConnotationFeatureUtil.doClassification()
 
