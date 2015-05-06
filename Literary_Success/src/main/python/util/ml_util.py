@@ -5,6 +5,8 @@ import numpy
 import random
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import LinearSVC
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn import metrics
 
 def splitTrainAndTestData(meta_dict_for_genre, feature_dict, split=0.7, rand_idx = True):
     class_wise_genre_file = {NovelMetaGenerator.SUCCESS_PATTERN:[],NovelMetaGenerator.FAILURE_PATTERN:[]}
@@ -38,6 +40,8 @@ def splitTrainAndTestData(meta_dict_for_genre, feature_dict, split=0.7, rand_idx
     train_data, train_result = [], []
     test_data, test_result = [], []
 
+    test_files = []
+
     for i in range(total_success_files):
             file_name = class_wise_genre_file[NovelMetaGenerator.SUCCESS_PATTERN][i]
             if i in train_success_idx:
@@ -46,6 +50,8 @@ def splitTrainAndTestData(meta_dict_for_genre, feature_dict, split=0.7, rand_idx
             else:
                 test_data.append([val for val in feature_dict[file_name].values()])
                 test_result.append(1)
+                test_files.append(file_name)
+
 
     for i in range(total_failure_files):
         file_name = class_wise_genre_file[NovelMetaGenerator.FAILURE_PATTERN][i]
@@ -55,21 +61,35 @@ def splitTrainAndTestData(meta_dict_for_genre, feature_dict, split=0.7, rand_idx
         else:
             test_data.append([val for val in feature_dict[file_name].values()])
             test_result.append(0)
+            test_files.append(file_name)
 
     train_data = numpy.array(train_data)
     train_result = numpy.array(train_result)
     test_data = numpy.array(test_data)
     test_result = numpy.array(test_result)
 
+    print test_files
+
     return train_data, train_result, test_data, test_result
 
 def doClassfication(train_data, train_result, test_data, test_result):
-    log_r = LinearSVC(C=0.5)
+    log_r = LinearSVC(C=5)
     log_r.fit(train_data, train_result)
-    accuracy = 0.0
-    for i in range(len(test_data)):
-        label = int(log_r.predict(test_data[i]))
-        if label == test_result[i]:
-            accuracy += 1.0
-    accuracy = accuracy/len(test_data)
-    return accuracy
+    # accuracy = 0.0
+    # for i in range(len(test_data)):
+    #     label = int(log_r.predict(test_data[i]))
+    #     if label == test_result[i]:
+    #         accuracy += 1.0
+    # accuracy = accuracy/len(test_data)
+    # return accuracy
+    mylabel = []
+    for k in range(len(test_data)):
+        pred = log_r.predict(test_data[k])
+        print pred, test_result[k], test_data[k]
+        mylabel.append(pred)
+
+    scores = metrics.precision_recall_fscore_support(test_result, mylabel, labels=[0, 1],\
+                                                     pos_label=1, average='binary')
+    accuracy = metrics.accuracy_score(test_result, mylabel)
+
+    return scores, accuracy

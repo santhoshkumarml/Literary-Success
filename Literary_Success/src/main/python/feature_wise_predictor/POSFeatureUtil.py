@@ -3,6 +3,7 @@ __author__ = 'santhosh'
 from util import ml_util
 from util import NovelMetaGenerator
 from nltk.tree import ParentedTree
+from sklearn.svm import LinearSVC
 
 
 CLASS = 'class'
@@ -32,22 +33,21 @@ def extractPOSFeaturesFromCoreNLPFiles(core_nlp_files):
     for genre_file_path, genre_file_name in core_nlp_files:
         dictionary = dict()
         with open(genre_file_path) as f:
-            lines = f.readlines()
-            assert len(lines) == 1
-            line = lines[0]
-            line = 'dictionary=' + line
-            exec(line)
-            curr_file_feature = dict()
-            sentences = dictionary[NovelMetaGenerator.SENTENCES]
-            for sent in sentences:
-                parsetree = sent[NovelMetaGenerator.PARSE_TREE]
-                t = ParentedTree.fromstring(parsetree)
-                wordAndtags = t.pos()
-                for word, pos in wordAndtags:
-                    if pos not in curr_file_feature:
-                        curr_file_feature[pos] = 0.0
-                    curr_file_feature[pos] += 1.0
-                    diff_pos.add(pos)
+            lines = f.readlines()[:100]
+            for line in lines:
+                line = 'dictionary=' + line
+                exec(line)
+                curr_file_feature = dict()
+                sentences = dictionary[NovelMetaGenerator.SENTENCES]
+                for sent in sentences:
+                    parsetree = sent[NovelMetaGenerator.PARSE_TREE]
+                    t = ParentedTree.fromstring(parsetree)
+                    wordAndtags = t.pos()
+                    for word, pos in wordAndtags:
+                        if pos not in curr_file_feature:
+                            curr_file_feature[pos] = 0.0
+                        curr_file_feature[pos] += 1.0
+                        diff_pos.add(pos)
             key = genre_file_name.replace(NovelMetaGenerator.CORE_NLP_FILE_SUFFIX, '')
             feature_dict[key] = curr_file_feature
     feature_dict = normalize_dist(feature_dict, diff_pos)
@@ -71,13 +71,26 @@ def doClassification(allSentencePOS = False):
                         meta_dict_for_genre[file_name][TAGS][pos_tag] = 0.0
                     feature_dict[file_name][pos_tag] = meta_dict_for_genre[file_name][TAGS][pos_tag]
         else:
-            core_nlp_files = core_nlp_files_dict[genre]
-            if genre == 'Science Fiction' or genre == 'Short Stories':
+            if genre != 'Adventure Stories' and genre != 'Love Stories':
                 continue
+            core_nlp_files = core_nlp_files_dict[genre]
             feature_dict = extractPOSFeaturesFromCoreNLPFiles(core_nlp_files)
 
         train_data, train_result, test_data, test_result =\
             ml_util.splitTrainAndTestData(meta_dict_for_genre, feature_dict)
 
-        accuracy = ml_util.doClassfication(train_data, train_result, test_data, test_result)
-        print genre, ':', accuracy
+        # accuracy = ml_util.doClassfication(train_data, train_result, test_data, test_result)
+        # print genre, ':', accuracy
+        log_r = LinearSVC(C=5)
+        log_r.fit(train_data, train_result)
+        # accuracy = 0.0
+        # for i in range(len(test_data)):
+        #     label = int(log_r.predict(test_data[i]))
+        #     if label == test_result[i]:
+        #         accuracy += 1.0
+        # accuracy = accuracy/len(test_data)
+        # return accuracy
+        mylabel = []
+        for k in range(len(test_data)):
+            pred = log_r.predict(test_data[k])
+            print pred, test_result[k]

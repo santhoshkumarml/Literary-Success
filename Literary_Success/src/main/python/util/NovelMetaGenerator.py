@@ -18,7 +18,7 @@ nltk.data.path.append('/media/santhosh/Data/workspace/nltk_data')
 
 NOVEL_BASE = '/media/santhosh/Data/workspace/nlp_project/novels'
 NOVEL_META = 'novel_meta.txt'
-CORE_NLP_BASE = '/media/santhosh/Data/workspace/nlp_project/core_nlp1'
+CORE_NLP_BASE = '/media/santhosh/Data/workspace/nlp_project/Correct Sent Tag'
 dataset_pattern = r'[*]+DATASET:.*[*]+'
 folder_pattern = r'[*]+.*[*]+'
 entry_pattern = r'(SUCCESS|FAILURE).+:.+'
@@ -245,15 +245,13 @@ def readGenreFilesAndTagWordsForSenses(core_nlp_files):
             synset_wsd_file = genre_file_path.replace(CORE_NLP_FILE_SUFFIX, SYNSET_WSD_FILE_SUFFIX)
             if os.path.exists(synset_wsd_file):
                 continue
-
-            lines = f.readlines()
-            assert len(lines) == 1
-            line = lines[0]
-            line = 'dictionary=' + line
-            exec(line)
-            sentences = dictionary[SENTENCES]
+            lines = f.readlines()[:100]
             output = []
-            for sent in sentences:
+            for line in lines:
+                line = 'dictionary=' + line
+                exec(line)
+                sentences = dictionary[SENTENCES]
+                sent = sentences[0]
                 parsetree = sent[PARSE_TREE]
                 t = ParentedTree.fromstring(parsetree)
                 sentence_result = []
@@ -273,7 +271,8 @@ def extractSysetDistributionForWORDS():
     start_time = datetime.now()
     meta_dict = loadInfoFromMetaFile()
     core_nlp_files_dict = listGenreWiseFileNames(CORE_NLP_BASE, CORE_NLP_TAG_FILES_PATTERN)
-    readGenreFilesAndTagWordsForSenses(core_nlp_files_dict['Adventure Stories'])
+    for genre in ['Adventure Stories', 'Love Stories']:
+        readGenreFilesAndTagWordsForSenses(core_nlp_files_dict[genre])
     end_time = datetime.now()
     print 'Total Time', end_time - start_time
 

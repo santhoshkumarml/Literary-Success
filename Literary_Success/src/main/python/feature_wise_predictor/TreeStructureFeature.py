@@ -89,28 +89,45 @@ def doVarianceMeasure(core_nlp_files_dict, genre):
         rules.append(len(diff_productions))
     return (numpy.mean(rules), numpy.std(rules), numpy.var(rules))
 
+def traverseLabels(tree):
+    if not isinstance(tree, ParentedTree):
+        return []
+    output = [tree.label()]
+    if len(tree) > 0:
+        for child in tree:
+            output = output + traverseLabels(child)
+    return output
+
 
 def checkLoosePeriodic(tree):
-    k = 1
-    Ltop = len(str(tree.productions()[1]).split('>')[1].strip().strip('.').strip(',').split())
-    while k <= Ltop:
-        topLevel = str(tree.productions()[k]).split('>')[1]
-        VP = True if re.search('. VP .', topLevel) else False
-        SSBAR = True if re.search('. S .', topLevel) or re.search('. SBAR .', topLevel) else False
-        if not VP:
-            if SSBAR:
-                return PERIODIC
-        else:
-            if SSBAR:
-                return LOOSE
-        k += 1
+    t = tree
+    st = []
+    found = False
+    while isinstance(t, ParentedTree) and t.label() != 'S':
+        children = [child for child in t]
+        st.extend(children)
+        t = st.pop()
+        found = True
+
+    if found:
+        children = [child for child in t]
+        k = 0
+        while k < len(children):
+            result = traverseLabels(children[k])
+            if isinstance(children[k], ParentedTree) and children[k].label() != 'VP':
+                if 'S' in result or 'SBAR' in result:
+                    return PERIODIC
+            else:
+                if 'S' in result or 'SBAR' in result:
+                    return LOOSE
+            k += 1
+
     return LOOSE_PERIODIC_OTHER
 
 
 def checkComplexCompound(tree):
     topLevel = str(tree.productions()[1])
-    tags = tree.pos()
-    tags = [x[1] for x in tags]
+    tags = traverseLabels(tree)
     SBAR = True if 'SBAR' in tags else False
     if re.search('. S .', topLevel.split('>')[1]):
         if not SBAR:
@@ -307,13 +324,12 @@ def doClassification():
     core_nlp_files_dict = NovelMetaGenerator.listGenreWiseFileNames(NovelMetaGenerator.CORE_NLP_BASE,\
                                                                     NovelMetaGenerator.CORE_NLP_TAG_FILES_PATTERN)
     for genre in meta_dict.keys():
-        if genre != 'Adventure Stories':
+        if genre != 'Adventure Stories' and genre != 'Love Stories':
             continue
         meta_dict_for_genre = meta_dict[genre]
         core_nlp_files = core_nlp_files_dict[genre]
-        fs = set([HEIGHT])
+        fs = set([HEIGHT, HORIZONTAL_TREE_IMBALANCE, VERTICAL_TREE_IMBALANCE])
         feature_dict = extractDeepSyntaticFeature(core_nlp_files, features=fs)
-        feature_dict
         train_data, train_result, test_data, test_result =\
             ml_util.splitTrainAndTestData(meta_dict_for_genre, feature_dict)
         accuracy = ml_util.doClassfication(train_data, train_result, test_data, test_result)

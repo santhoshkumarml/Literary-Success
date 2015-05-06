@@ -5,6 +5,7 @@ from util import NovelMetaGenerator
 from util import ml_util
 import math
 from nltk.corpus.reader import Synset
+import re
 
 def calculate_Entropy(dist):
     entropy_list = [-p*math.log(p, 2) for p in dist if p != 0]
@@ -23,6 +24,7 @@ def extractConnotationFeatures(conn_files):
         assert len(lines) == 1
         line = lines[0]
         data = []
+        line = re.sub(r'Synset\(.*?\)','\'-WSD-\'', line)
         line = 'data='+line
         exec(line)
         for line in data:
@@ -51,6 +53,6 @@ def doClassification():
         core_nlp_files = conn_files_dict[genre]
         feature_dict = extractConnotationFeatures(core_nlp_files)
         train_data, train_result, test_data, test_result =\
-            ml_util.splitTrainAndTestData(meta_dict_for_genre, feature_dict, rand_idx=False)
+            ml_util.splitTrainAndTestData(meta_dict_for_genre, feature_dict, rand_idx=False, split=0.9)
         accuracy = ml_util.doClassfication(train_data, train_result, test_data, test_result)
         print genre, ':', accuracy

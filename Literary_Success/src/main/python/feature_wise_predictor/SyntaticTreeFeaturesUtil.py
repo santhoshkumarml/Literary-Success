@@ -22,24 +22,23 @@ def extractSyntacticFeatures(core_nlp_files):
         production_dict = dict()
         dictionary = dict()
         with open(genre_file_path) as f:
-            lines = f.readlines()
-            assert len(lines) == 1
-            line = lines[0]
-            line = 'dictionary=' + line
-            exec(line)
-            # print genre_file_path, dictionary
-            sentences = dictionary[NovelMetaGenerator.SENTENCES]
-            for sent in sentences:
-                parsetree = sent[NovelMetaGenerator.PARSE_TREE]
-                t = ParentedTree.fromstring(parsetree)
-                prods = t.productions()
-                for prod in prods:
-                    if prod not in diff_productions:
-                        diff_productions[prod] = 0.0
-                    if prod not in production_dict:
-                        production_dict[prod] = 0.0
-                    diff_productions[prod] += 1.0
-                    production_dict[prod] += 1.0
+            lines = f.readlines()[:100]
+            for line in lines:
+                line = 'dictionary=' + line
+                exec(line)
+                # print genre_file_path, dictionary
+                sentences = dictionary[NovelMetaGenerator.SENTENCES]
+                for sent in sentences:
+                    parsetree = sent[NovelMetaGenerator.PARSE_TREE]
+                    t = ParentedTree.fromstring(parsetree)
+                    prods = t.productions()
+                    for prod in prods:
+                        if prod not in diff_productions:
+                            diff_productions[prod] = 0.0
+                        if prod not in production_dict:
+                            production_dict[prod] = 0.0
+                        diff_productions[prod] += 1.0
+                        production_dict[prod] += 1.0
             key = genre_file_name.replace(NovelMetaGenerator.CORE_NLP_FILE_SUFFIX, '')
             production_dict_for_files[key] = production_dict
 
@@ -54,7 +53,7 @@ def doClassification():
     core_nlp_files_dict = NovelMetaGenerator.listGenreWiseFileNames(NovelMetaGenerator.CORE_NLP_BASE,\
                                                                     NovelMetaGenerator.CORE_NLP_TAG_FILES_PATTERN)
     for genre in core_nlp_files_dict:
-        if genre == 'Science Fiction' or genre == 'Short Stories':
+        if genre != 'Adventure Stories' and genre != 'Love Stories':
             continue
         meta_dict_for_genre = meta_dict[genre]
         core_nlp_files = core_nlp_files_dict[genre]
