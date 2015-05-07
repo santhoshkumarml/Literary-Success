@@ -4,7 +4,7 @@ from util import NovelMetaGenerator
 from nltk.tree import ParentedTree
 
 def readCoreNLPFileAndReturnTree(core_nlp_file):
-    genre_file_name, genre_file_path = core_nlp_file
+    genre_file_path, genre_file_name = core_nlp_file
     dictionary = dict()
     trees = []
     with open(genre_file_path) as f:

@@ -12,12 +12,12 @@ def testPOSFeatures(genres=None):
         genres = NovelMetaGenerator.ALL_GENRES
 
     for genre in genres:
-        core_nlp_file = core_nlp_files_dict[genre]
+        core_nlp_files = core_nlp_files_dict[genre]
         meta_dict_for_genre = meta_dict[genre]
-        feature_dict = POSFeatureUtil.extractPOSFeaturesFromCoreNLPFiles(core_nlp_file)
+        feature_dict = POSFeatureUtil.extractPOSFeaturesFromCoreNLPFiles(core_nlp_files)
         train_data, train_result, test_data, test_result =\
             ml_util.splitTrainAndTestData(meta_dict_for_genre, feature_dict, split=0.8)
-        scores = ml_util.doClassfication(train_data, train_data, train_result, test_data, test_result)
+        scores = ml_util.doClassfication(train_data, train_result, test_data, test_result)
         print scores
 
 
