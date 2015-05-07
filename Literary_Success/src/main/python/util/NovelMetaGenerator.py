@@ -228,7 +228,9 @@ def extractMetaDataAndPOSTagsDistributions():
 
 def extractMetaDataAndTagCoreNLP(genres=None):
     if genres == None:
-        genres = set(['Adventure Stories'])
+        genres = set(['Adventure Stories', 'Love Stories', 'Poetry', 'Mystery',\
+                      'Short Stories', 'Fiction', 'Science Fiction',\
+                      'Historical Fiction'])
     start_time = datetime.now()
     meta_dict = loadInfoFromMetaFile()
     genre_to_file_list = listGenreWiseFileNames(NOVEL_BASE)

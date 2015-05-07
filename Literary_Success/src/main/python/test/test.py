@@ -14,7 +14,7 @@ from util import ml_util
 # TreeStructureFeature.doClassification()
 
 from util import NovelMetaGenerator
-NovelMetaGenerator.extractMetaDataAndTagCoreNLP()
+NovelMetaGenerator.extractMetaDataAndTagCoreNLP(genres=set(['Love Stories']))
 
 # import nltk
 # import jsonrpclib
