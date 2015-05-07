@@ -15,7 +15,7 @@ COMPLEX_COMPOUND_FEATURE = 'COMPLEX_COMPOUND'
 LOOSE_PERIODIC_FEATURE = 'LOOSE_PERIODIC'
 HORIZONTAL_TREE_IMBALANCE = 'HORIZONTAL_TREE_IMBALANCE'
 VERTICAL_TREE_IMBALANCE = 'VERTICAL_TREE_IMBALANCE'
-ALL_FEATURES = set([HEIGHT, WIDTH, COMPLEX_COMPOUND_FEATURE, LOOSE_PERIODIC_FEATURE,\
+ALL_DEEP_SYNTACTIC_FEATURES = set([HEIGHT, WIDTH, COMPLEX_COMPOUND_FEATURE, LOOSE_PERIODIC_FEATURE,\
                     HORIZONTAL_TREE_IMBALANCE, VERTICAL_TREE_IMBALANCE])
 
 
@@ -116,7 +116,7 @@ def horizontal_imbalance(furcation_node_dict):
 
 def extractDeepSyntaticFeature(core_nlp_files, features=None):
     if not features:
-        features = ALL_FEATURES
+        features = ALL_DEEP_SYNTACTIC_FEATURES
     max_ht = 0
     deep_syntactic_feature_dict = dict()
     for core_nlp_file in core_nlp_files:
