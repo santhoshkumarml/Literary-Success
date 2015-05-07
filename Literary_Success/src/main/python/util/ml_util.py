@@ -85,7 +85,7 @@ def doClassfication(train_data, train_result, test_data, test_result):
     mylabel = []
     for k in range(len(test_data)):
         pred = log_r.predict(test_data[k])
-        print pred, test_result[k], test_data[k]
+        # print pred, test_result[k], test_data[k]
         mylabel.append(pred)
 
     scores = metrics.precision_recall_fscore_support(test_result, mylabel, labels=[0, 1],\
