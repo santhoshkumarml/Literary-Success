@@ -67,9 +67,6 @@ def splitTrainAndTestData(meta_dict_for_genre, feature_dict, split=0.7, rand_idx
     train_result = numpy.array(train_result)
     test_data = numpy.array(test_data)
     test_result = numpy.array(test_result)
-
-    print test_files
-
     return train_data, train_result, test_data, test_result
 
 def doClassfication(train_data, train_result, test_data, test_result):
