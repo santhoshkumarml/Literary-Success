@@ -20,7 +20,7 @@ def extractSyntacticFeatures(core_nlp_files):
     diff_productions = dict()
     production_dict_for_files = dict()
     for core_nlp_file in core_nlp_files:
-        genre_file_name, genre_file_path = core_nlp_file
+        genre_file_path, genre_file_name = core_nlp_file
         production_dict = dict()
         trees = data_reader.readCoreNLPFileAndReturnTree(core_nlp_file)
         for t in trees:
