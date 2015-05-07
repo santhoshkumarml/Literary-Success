@@ -21,6 +21,6 @@ def testPOSFeatures(genres=None):
         print scores
 
 
-testPOSFeatures(genres= set(['Adventure Stories']))
+testPOSFeatures(genres=set(['Adventure Stories']))
 
 
