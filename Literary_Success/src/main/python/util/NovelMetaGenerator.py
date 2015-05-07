@@ -44,6 +44,10 @@ FILE_NAME = 'FileName'
 CLASS = 'class'
 TAGS = 'TAGS'
 
+ALL_GENRES = set(['Adventure Stories', 'Love Stories', 'Poetry', 'Mystery',\
+                      'Short Stories', 'Fiction', 'Science Fiction',\
+                      'Historical Fiction'])
+
 def fixMetaInfoRecord(tokens):
     wrong_split_idx = set()
     for i in range(len(tokens)):
@@ -228,9 +232,7 @@ def extractMetaDataAndPOSTagsDistributions():
 
 def extractMetaDataAndTagCoreNLP(genres=None):
     if genres == None:
-        genres = set(['Adventure Stories', 'Love Stories', 'Poetry', 'Mystery',\
-                      'Short Stories', 'Fiction', 'Science Fiction',\
-                      'Historical Fiction'])
+        genres = ALL_GENRES
     start_time = datetime.now()
     meta_dict = loadInfoFromMetaFile()
     genre_to_file_list = listGenreWiseFileNames(NOVEL_BASE)
