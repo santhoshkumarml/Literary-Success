@@ -1,10 +1,10 @@
 __author__ = 'santhosh'
 
 
-from feature_wise_predictor import POSFeatureUtil
-from feature_wise_predictor import SyntaticTreeFeaturesUtil
-from feature_wise_predictor import ConnotationFeatureUtil
-from feature_wise_predictor import TreeStructureFeature
+from feature_extractor import POSFeatureUtil
+from feature_extractor import SyntaticTreeFeaturesUtil
+from feature_extractor import ConnotationFeatureUtil
+from feature_extractor import DeepSyntacticFeatureUtil
 from util import NovelMetaGenerator
 from util import ml_util
 

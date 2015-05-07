@@ -3,7 +3,7 @@ __author__ = 'santhosh'
 from util import NovelMetaGenerator
 from nltk.tree import ParentedTree
 from util import ml_util
-from feature_wise_predictor import SyntaticTreeFeaturesUtil
+from feature_extractor import SyntaticTreeFeaturesUtil
 from util import utils
 import numpy
 import re
