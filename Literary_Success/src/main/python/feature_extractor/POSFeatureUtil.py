@@ -1,9 +1,6 @@
 __author__ = 'santhosh'
 
-from util import ml_util
 from util import NovelMetaGenerator
-from nltk.tree import ParentedTree
-from sklearn.svm import LinearSVC
 from util import data_reader
 
 

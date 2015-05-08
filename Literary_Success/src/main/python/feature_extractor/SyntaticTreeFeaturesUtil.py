@@ -1,8 +1,6 @@
 __author__ = 'santhosh'
 
 from util import NovelMetaGenerator
-from util import ml_util
-from nltk.tree import ParentedTree
 from util import data_reader
 
 
