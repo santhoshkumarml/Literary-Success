@@ -161,6 +161,7 @@ def extractDeepSyntaticFeature(core_nlp_files, features=None):
                     vertical_imbalance_sent = vertical_imbalance(furcation_node_dict)
                     vertical_imbalance_feature_for_file[VERTICAL_TREE_IMBALANCE+str(sent_count)] =\
                         vertical_imbalance_sent
+            sent_count += 1
 
         key = genre_file_name.replace(NovelMetaGenerator.CORE_NLP_FILE_SUFFIX, '')
         deep_syntactic_feature_dict[key] = dict()
