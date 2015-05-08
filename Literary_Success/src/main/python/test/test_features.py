@@ -62,6 +62,9 @@ def testDeepSyntacticFeatures(genres=None, features=None):
 
 
 
-testDeepSyntacticFeatures(genres=set(['Adventure Stories']))
+testDeepSyntacticFeatures(genres=set(['Adventure Stories']),\
+                          features=set([DeepSyntacticFeatureUtil.HORIZONTAL_TREE_IMBALANCE,\
+                                        DeepSyntacticFeatureUtil.VERTICAL_TREE_IMBALANCE,\
+                                        DeepSyntacticFeatureUtil.HEIGHT]))
 
 

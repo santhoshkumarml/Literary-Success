@@ -8,6 +8,7 @@ from util import utils
 import numpy
 import re
 from util import data_reader
+from collections import deque
 
 HEIGHT = 'HEIGHT'
 WIDTH = 'WIDTH'
@@ -46,9 +47,9 @@ def checkLoosePeriodic(tree):
     st = []
     found = False
     while isinstance(t, ParentedTree) and t.label() != 'S':
-        children = [child for child in t]
+        children = deque([child for child in t])
         st.extend(children)
-        t = st.pop()
+        t = st.popleft()
         found = True
     if found:
         children = [child for child in t]
