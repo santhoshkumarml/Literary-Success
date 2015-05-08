@@ -52,17 +52,14 @@ def checkLoosePeriodic(tree):
         t = st.popleft()
         found = True
     if found:
-        children = [child for child in t]
-        k = 0
-        while k < len(children):
-            result = traverseLabels(children[k])
-            if isinstance(children[k], ParentedTree) and children[k].label() != 'VP':
+        for child in t:
+            result = traverseLabels(child)
+            if isinstance(child, ParentedTree) and child.label() != 'VP':
                 if 'S' in result or 'SBAR' in result:
                     return PERIODIC
             else:
                 if 'S' in result or 'SBAR' in result:
                     return LOOSE
-            k += 1
     return LOOSE_PERIODIC_OTHER
 
 
