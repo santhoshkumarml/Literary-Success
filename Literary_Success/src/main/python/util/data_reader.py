@@ -8,7 +8,7 @@ def readCoreNLPFileAndReturnTree(core_nlp_file):
     dictionary = dict()
     trees = []
     with open(genre_file_path) as f:
-        lines = f.readlines()[:100]
+        lines = f.readlines()
         for line in lines:
             line = 'dictionary=' + line
             exec(line)
