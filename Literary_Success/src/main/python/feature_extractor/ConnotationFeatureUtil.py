@@ -24,7 +24,7 @@ def extractConnotationFeatures(conn_files):
         assert len(lines) == 1
         line = lines[0]
         data = []
-        line = re.sub(r'Synset\(.*?\)','\'-WSD-\'', line)
+        # line = re.sub(r'Synset\(.*?\)','\'-WSD-\'', line)
         line = 'data='+line
         exec(line)
         for line in data:
@@ -40,19 +40,3 @@ def extractConnotationFeatures(conn_files):
         key = genre_file_name.replace(NovelMetaGenerator.SYNSET_WSD_FILE_SUFFIX, '')
         feature_dict[key] = {'AVG_ENTROPY': avg_entropy}
     return feature_dict
-
-
-def doClassification():
-    conn_files_dict = NovelMetaGenerator.listGenreWiseFileNames(NovelMetaGenerator.CORE_NLP_BASE,\
-                                                                NovelMetaGenerator.SYNSET_WSD_TAG_PATTERN)
-    meta_dict = NovelMetaGenerator.loadInfoFromMetaFile()
-    for genre in conn_files_dict:
-        if genre != 'Adventure Stories':
-            continue
-        meta_dict_for_genre = meta_dict[genre]
-        core_nlp_files = conn_files_dict[genre]
-        feature_dict = extractConnotationFeatures(core_nlp_files)
-        train_data, train_result, test_data, test_result =\
-            ml_util.splitTrainAndTestData(meta_dict_for_genre, feature_dict, rand_idx=False, split=0.9)
-        accuracy = ml_util.doClassfication(train_data, train_result, test_data, test_result)
-        print genre, ':', accuracy
