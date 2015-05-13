@@ -83,11 +83,22 @@ def testAmbiguity(genres=None):
 
 
 
-# testDeepSyntacticFeatures(genres=set(['Adventure Stories']),\
-#                           features=set([DeepSyntacticFeatureUtil.HORIZONTAL_TREE_IMBALANCE,\
-#                                         DeepSyntacticFeatureUtil.VERTICAL_TREE_IMBALANCE]))
 
-testAmbiguity(genres=set(['Adventure Stories', 'Love Stories']))
+genres_to_test = set(['Adventure Stories', 'Love Stories'])
+
+print 'POS Features'
+testPOSFeatures(genres=genres_to_test)
+
+print 'Production Features'
+testProductionFeatures(genres=genres_to_test)
+
+print 'Deep Syntactic Tree Structure Features'
+testDeepSyntacticFeatures(genres=genres_to_test,\
+                          features=set([DeepSyntacticFeatureUtil.HORIZONTAL_TREE_IMBALANCE,\
+                                        DeepSyntacticFeatureUtil.VERTICAL_TREE_IMBALANCE]))
+
+print 'Word Sense Ambiguity Features'
+testAmbiguity(genres=genres_to_test)
 
 
 
