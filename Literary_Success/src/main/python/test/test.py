@@ -14,7 +14,7 @@ from util import ml_util
 # TreeStructureFeature.doClassification()
 
 from util import NovelMetaGenerator
-NovelMetaGenerator.extractSysetDistributionForWORDS(genres=set(['Love Stories']))
+NovelMetaGenerator.extractSysetDistributionForWORDS(genres=set(['Adventure Stories', 'Love Stories']))
 
 # import nltk
 # import jsonrpclib
