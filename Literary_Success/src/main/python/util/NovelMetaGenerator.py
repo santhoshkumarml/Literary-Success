@@ -262,8 +262,10 @@ def readGenreFilesAndTagWordsForSenses(core_nlp_files):
                     for word, pos in t.pos():
                         if re.match(POS_PATTERN_FOR_WSD, pos) and pos not in ['DT', 'CC', 'CD']:
                             ranked_synsets = lsk.adapted_lesk(unicode(txt), unicode(word))
-                            ranked_synset_prob_names = [(prob, ranked_synset.name())\
-                                                        for prob, ranked_synset in ranked_synsets]
+                            ranked_synset_prob_names = None
+                            if ranked_synsets:
+                                ranked_synset_prob_names = [(prob, ranked_synset.name())\
+                                                            for prob, ranked_synset in ranked_synsets]
                             result = (word, ranked_synset_prob_names)
                             sentence_result.append(result)
                     output.append(sentence_result)
