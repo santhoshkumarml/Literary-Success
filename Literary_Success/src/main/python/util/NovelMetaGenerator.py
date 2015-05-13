@@ -244,7 +244,6 @@ def extractMetaDataAndTagCoreNLP(genres=None):
 def readGenreFilesAndTagWordsForSenses(core_nlp_files):
     for genre_file_path, genre_file_name in core_nlp_files:
         dictionary = dict()
-        print genre_file_path
         with open(genre_file_path) as f:
             synset_wsd_file = genre_file_path.replace(CORE_NLP_FILE_SUFFIX, SYNSET_WSD_FILE_SUFFIX)
             if os.path.exists(synset_wsd_file):
@@ -255,27 +254,31 @@ def readGenreFilesAndTagWordsForSenses(core_nlp_files):
                 line = 'dictionary=' + line
                 exec(line)
                 sentences = dictionary[SENTENCES]
-                sent = sentences[0]
-                parsetree = sent[PARSE_TREE]
-                t = ParentedTree.fromstring(parsetree)
-                sentence_result = []
-                txt = sent[TXT]
-                for word, pos in t.pos():
-                    if re.match(POS_PATTERN_FOR_WSD, pos) and pos not in ['DT', 'CC', 'CD']:
-                        ranked_synsets = lsk.adapted_lesk(unicode(txt), unicode(word))
-                        result = (word, ranked_synsets)
-                        sentence_result.append(result)
-                output.append(sentence_result)
+                for sent in sentences:
+                    parsetree = sent[PARSE_TREE]
+                    t = ParentedTree.fromstring(parsetree)
+                    sentence_result = []
+                    txt = sent[TXT]
+                    for word, pos in t.pos():
+                        if re.match(POS_PATTERN_FOR_WSD, pos) and pos not in ['DT', 'CC', 'CD']:
+                            ranked_synsets = lsk.adapted_lesk(unicode(txt), unicode(word))
+                            ranked_synset_prob_names = [(prob, ranked_synset.name())\
+                                                        for prob, ranked_synset in ranked_synsets]
+                            result = (word, ranked_synset_prob_names)
+                            sentence_result.append(result)
+                    output.append(sentence_result)
 
             with open(synset_wsd_file, 'w') as f1:
                 f1.write(str(output))
 
 
-def extractSysetDistributionForWORDS():
+def extractSysetDistributionForWORDS(genres = None):
     start_time = datetime.now()
     meta_dict = loadInfoFromMetaFile()
+    if genres == None:
+        genres = ALL_GENRES
     core_nlp_files_dict = listGenreWiseFileNames(CORE_NLP_BASE, CORE_NLP_TAG_FILES_PATTERN)
-    for genre in ['Adventure Stories', 'Love Stories']:
+    for genre in genres:
         readGenreFilesAndTagWordsForSenses(core_nlp_files_dict[genre])
     end_time = datetime.now()
     print 'Total Time', end_time - start_time

@@ -23,11 +23,11 @@ from nltk.corpus import wordnet as wn
 from nltk.corpus.reader.wordnet import Synset
 
 data = lsk.adapted_lesk(u'I killed Cricket', u'Cricket')
-for word, ranked_synsets in data:
-    probs = 0.0
-    for ranked_synset in ranked_synsets:
-        prob, syn = ranked_synset
-        print prob
-        probs += prob
-    print probs
+ranked_synsets = data
+probs = 0.0
+for ranked_synset in ranked_synsets:
+    prob, syn = ranked_synset
+    print prob, syn.name()
+    probs += prob
+print probs
 
