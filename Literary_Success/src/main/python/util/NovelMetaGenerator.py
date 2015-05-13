@@ -245,6 +245,7 @@ def readGenreFilesAndTagWordsForSenses(core_nlp_files):
     for genre_file_path, genre_file_name in core_nlp_files:
         dictionary = dict()
         with open(genre_file_path) as f:
+            print 'Processing File', genre_file_path
             synset_wsd_file = genre_file_path.replace(CORE_NLP_FILE_SUFFIX, SYNSET_WSD_FILE_SUFFIX)
             if os.path.exists(synset_wsd_file):
                 continue
@@ -281,7 +282,9 @@ def extractSysetDistributionForWORDS(genres = None):
         genres = ALL_GENRES
     core_nlp_files_dict = listGenreWiseFileNames(CORE_NLP_BASE, CORE_NLP_TAG_FILES_PATTERN)
     for genre in genres:
+        print 'Genre', genre
         readGenreFilesAndTagWordsForSenses(core_nlp_files_dict[genre])
+        print '--------------------------------------------------------------------------------------------------'
     end_time = datetime.now()
     print 'Total Time', end_time - start_time
 
