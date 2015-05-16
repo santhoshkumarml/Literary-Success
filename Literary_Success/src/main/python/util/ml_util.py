@@ -67,7 +67,7 @@ def splitTrainAndTestData(meta_dict_for_genre, feature_dict, split=0.7, rand_idx
     train_result = numpy.array(train_result)
     test_data = numpy.array(test_data)
     test_result = numpy.array(test_result)
-    return train_data, train_result, test_data, test_result
+    return train_data, train_result, test_data, test_result, train_success_idx, train_failure_idx, class_wise_genre_file
 
 def doClassfication(train_data, train_result, test_data, test_result):
     log_r = LinearSVC(C=5)

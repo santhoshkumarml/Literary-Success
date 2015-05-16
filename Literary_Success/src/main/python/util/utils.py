@@ -1,6 +1,6 @@
 __author__ = 'santhosh'
 
-def normalize_dist(feature_dict_for_file, diff_feature_vals, doNomalize = False):
+def normalize_dist(feature_dict_for_file, diff_feature_vals, doNomalize = True):
     sum_of_production_rules = sum(feature_dict_for_file.values())
     if doNomalize:
         feature_dict_for_file = {k:(feature_dict_for_file[k]/sum_of_production_rules)\

@@ -42,10 +42,10 @@ def traverseLabels(tree):
 
 def checkLoosePeriodic(tree):
     t = tree
-    st = []
+    st = deque()
     found = False
     while isinstance(t, ParentedTree) and t.label() != 'S':
-        children = deque([child for child in t])
+        children = [child for child in t]
         st.extend(children)
         t = st.popleft()
         found = True
