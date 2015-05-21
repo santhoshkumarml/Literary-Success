@@ -6,7 +6,7 @@ from feature_extractor import POSFeatureUtil
 from feature_extractor import SyntaticTreeFeaturesUtil
 from feature_extractor import DeepSyntacticFeatureUtil
 from feature_extractor import WordSenseAmbiguityFeatureUtil
-import os
+import numpy
 
 
 def plotDataPoints(feature_dict, genre, train_success_idx, train_failure_idx, class_wise_genre_file):
@@ -31,9 +31,67 @@ def plotDataPoints(feature_dict, genre, train_success_idx, train_failure_idx, cl
                     cnt += 1
     plt.show()
 
+def plotSenseDistribution(feature_dict, genre, class_wise_genre_file):
+    import matplotlib.pyplot as plt
+    fig = plt.figure()
+    plt.title('Sense Distribution for '+genre)
+    plt.ylabel('Number Of Senses')
+    plt.xlabel('Novel')
+    ax = fig.add_subplot(1, 1, 1)
+    width = 0.20
+
+    success_feature_vals = []
+    failure_feature_vals = []
+
+    colors = ['r', 'b', 'g', 'y', 'c', 'm']
+
+    for success_file in class_wise_genre_file[NovelMetaGenerator.SUCCESS_PATTERN]:
+        feature_vals = feature_dict[success_file].values()
+        success_feature_vals.append(feature_vals)
+
+    for failure_file in class_wise_genre_file[NovelMetaGenerator.FAILURE_PATTERN]:
+        feature_vals = feature_dict[failure_file]
+        failure_feature_vals.append(feature_vals)
+
+    rects = []
+    s_cnt = len(success_feature_vals)
+    f_cnt = len(failure_feature_vals)
+
+    s_ind = numpy.arange(0, s_cnt, 1)
+    f_ind = numpy.arange(s_cnt, (s_cnt + f_cnt), 1)
+
+    for i in range(len(success_feature_vals)):
+        rect = ax.bar(s_ind + (width * i), success_feature_vals[i], width=width, color=colors[i])
+        rects.append(rect)
+
+    for j in range(len(failure_feature_vals)):
+        rect = ax.bar(f_ind + (width * j), failure_feature_vals[j], width=width, color=colors[j])
+        rects.append(rect)
+
+    ax.set_xticks(numpy.concatenate([s_ind, f_ind]) + width)
+    ax.set_xticklabels(['S' if idx < s_cnt else 'F' for idx in range(s_cnt+f_cnt)])
+    # ax.legend(rect)
+
+    plt.show()
 
 
 
+def testSenseDistribution(genres = None):
+    core_nlp_files_dict = NovelMetaGenerator.listGenreWiseFileNames(NovelMetaGenerator.CORE_NLP_BASE,\
+                                                                    NovelMetaGenerator.SYNSET_WSD_TAG_PATTERN)
+    meta_dict = NovelMetaGenerator.loadInfoFromMetaFile()
+    if not genres:
+        genres = NovelMetaGenerator.ALL_GENRES
+
+    for genre in genres:
+        core_nlp_files = core_nlp_files_dict[genre]
+        meta_dict_for_genre = meta_dict[genre]
+        feature_dict = WordSenseAmbiguityFeatureUtil.extractSenseDistributionFeatures(core_nlp_files)
+        train_data, train_result, test_data, test_result, train_success_idx, train_failure_idx, class_wise_genre_file =\
+            ml_util.splitTrainAndTestData(meta_dict_for_genre, feature_dict, split=0.7, rand_idx=False)
+        # plotSenseDistribution(feature_dict, genre, class_wise_genre_file)
+        scores = ml_util.doClassfication(train_data, train_result, test_data, test_result)
+        print scores
 
 def testPOSFeatures(genres=None):
     core_nlp_files_dict = NovelMetaGenerator.listGenreWiseFileNames(NovelMetaGenerator.CORE_NLP_BASE,\
@@ -107,7 +165,7 @@ def testAmbiguity(genres=None):
     for genre in genres:
         core_nlp_files = core_nlp_files_dict[genre]
         meta_dict_for_genre = meta_dict[genre]
-        feature_dict = WordSenseAmbiguityFeatureUtil.extractConnotationFeatures(core_nlp_files)
+        feature_dict = WordSenseAmbiguityFeatureUtil.extractSenseEntropyFeature(core_nlp_files)
         train_data, train_result, test_data, test_result, train_success_idx, train_failure_idx, class_wise_genre_file =\
             ml_util.splitTrainAndTestData(meta_dict_for_genre, feature_dict, split=0.7, rand_idx=False)
         plotDataPoints(feature_dict, genre, train_success_idx, train_failure_idx, class_wise_genre_file)
@@ -166,7 +224,6 @@ def plotDeepSyntactic():
         features = [DeepSyntacticFeatureUtil.LOOSE, DeepSyntacticFeatureUtil.PERIODIC]
 
         success_feature_vals = [[] for k in features]
-
 
         failure_feature_vals = [[] for k in features]
 
@@ -229,7 +286,5 @@ def plotDeepSyntactic():
 
         plt.show()
 
-
-
-plotDeepSyntactic()
 # testAmbiguity(genres=set(['Adventure Stories']))
+testSenseDistribution(genres=set(['Adventure Stories']))
