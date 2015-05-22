@@ -9,6 +9,13 @@ from feature_extractor import WordSenseAmbiguityFeatureUtil
 import numpy
 
 
+def normalize_dist(array):
+    sum_val = numpy.sum(array)
+    for i in range(len(array)):
+        array[i] /= sum_val
+    return array
+
+
 def plotDataPoints(feature_dict, genre, train_success_idx, train_failure_idx, class_wise_genre_file):
     import matplotlib.pyplot as plt
     fig = plt.figure()
@@ -35,10 +42,10 @@ def plotSenseDistribution(feature_dict, genre, class_wise_genre_file):
     import matplotlib.pyplot as plt
     fig = plt.figure()
     plt.title('Sense Distribution for '+genre)
-    plt.ylabel('Number Of Senses')
+    plt.ylabel('Probability Of Senses')
     plt.xlabel('Novel')
     ax = fig.add_subplot(1, 1, 1)
-    width = 0.20
+    width = 3.0
 
     success_feature_vals = []
     failure_feature_vals = []
@@ -50,26 +57,33 @@ def plotSenseDistribution(feature_dict, genre, class_wise_genre_file):
         success_feature_vals.append(feature_vals)
 
     for failure_file in class_wise_genre_file[NovelMetaGenerator.FAILURE_PATTERN]:
-        feature_vals = feature_dict[failure_file]
+        feature_vals = feature_dict[failure_file].values()
         failure_feature_vals.append(feature_vals)
 
     rects = []
+    success_feature_vals = numpy.array(success_feature_vals)
+    failure_feature_vals = numpy.array(failure_feature_vals)
+
+    success_feature_vals = numpy.sum(success_feature_vals, axis=0)
+    failure_feature_vals = numpy.sum(failure_feature_vals, axis=0)
+
+    success_feature_vals = normalize_dist(success_feature_vals)
+    failure_feature_vals = normalize_dist(failure_feature_vals)
+
     s_cnt = len(success_feature_vals)
     f_cnt = len(failure_feature_vals)
 
-    s_ind = numpy.arange(0, s_cnt, 1)
-    f_ind = numpy.arange(s_cnt, (s_cnt + f_cnt), 1)
+    s_ind = numpy.arange(0, s_cnt*3, 3)
+    f_ind = numpy.arange(s_cnt*3, (s_cnt + f_cnt)*3, 3)
 
-    for i in range(len(success_feature_vals)):
-        rect = ax.bar(s_ind + (width * i), success_feature_vals[i], width=width, color=colors[i])
-        rects.append(rect)
+    rect = ax.bar(s_ind, success_feature_vals, width=width, color='g')
+    rects.append(rect)
 
-    for j in range(len(failure_feature_vals)):
-        rect = ax.bar(f_ind + (width * j), failure_feature_vals[j], width=width, color=colors[j])
-        rects.append(rect)
+    rect = ax.bar(f_ind, failure_feature_vals, width=width, color='r')
+    rects.append(rect)
 
-    ax.set_xticks(numpy.concatenate([s_ind, f_ind]) + width)
-    ax.set_xticklabels(['S' if idx < s_cnt else 'F' for idx in range(s_cnt+f_cnt)])
+    ax.set_xticks(numpy.concatenate([s_ind, f_ind]))
+    ax.set_xticklabels([str(idx+1) if idx < s_cnt else str(idx-s_cnt+1) for idx in range(1, s_cnt+f_cnt)])
     # ax.legend(rect)
 
     plt.show()
@@ -89,7 +103,7 @@ def testSenseDistribution(genres = None):
         feature_dict = WordSenseAmbiguityFeatureUtil.extractSenseDistributionFeatures(core_nlp_files)
         train_data, train_result, test_data, test_result, train_success_idx, train_failure_idx, class_wise_genre_file =\
             ml_util.splitTrainAndTestData(meta_dict_for_genre, feature_dict, split=0.7, rand_idx=False)
-        # plotSenseDistribution(feature_dict, genre, class_wise_genre_file)
+        plotSenseDistribution(feature_dict, genre, class_wise_genre_file)
         scores = ml_util.doClassfication(train_data, train_result, test_data, test_result)
         print scores
 
@@ -137,7 +151,6 @@ def testDeepSyntacticFeatures(genres=None, features=None):
     if not features:
         features = DeepSyntacticFeatureUtil.ALL_DEEP_SYNTACTIC_FEATURES
 
-
     for genre in genres:
         core_nlp_files = core_nlp_files_dict[genre]
         meta_dict_for_genre = meta_dict[genre]
@@ -160,7 +173,6 @@ def testAmbiguity(genres=None):
     meta_dict = NovelMetaGenerator.loadInfoFromMetaFile()
     if not genres:
         genres = NovelMetaGenerator.ALL_GENRES
-
 
     for genre in genres:
         core_nlp_files = core_nlp_files_dict[genre]

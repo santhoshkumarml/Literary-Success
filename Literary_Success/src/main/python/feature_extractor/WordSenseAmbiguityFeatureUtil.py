@@ -48,12 +48,18 @@ def extractSenseDistributionFeatures(conn_files):
                 if synset == None:
                     continue
                 number_of_senses = len(synset)
+                if number_of_senses == 0:
+                    continue
                 if number_of_senses > max_sense_count:
                     max_sense_count = number_of_senses
                 if number_of_senses not in feature_dict[key]:
                     feature_dict[key][number_of_senses] = 0.0
                 feature_dict[key][number_of_senses] += 1.0
-    normalize_dist(feature_dict, max_sense_count)
+    # normalize_dist(feature_dict, max_sense_count)
+    for f in feature_dict:
+        for k in range(1, max_sense_count+1):
+            if k not in feature_dict[f]:
+                feature_dict[f][k] = 0.0
     return feature_dict
 
 def extractSenseEntropyFeature(conn_files):
