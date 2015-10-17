@@ -40,12 +40,6 @@ def plotDataPoints(feature_dict, genre, train_success_idx, train_failure_idx, cl
 
 def plotSenseDistribution(feature_dict, genre, class_wise_genre_file):
     import matplotlib.pyplot as plt
-    fig = plt.figure()
-    plt.title('Sense Distribution for '+genre)
-    plt.ylabel('Probability Of Senses')
-    plt.xlabel('Novel')
-    ax = fig.add_subplot(1, 1, 1)
-    width = 3.0
 
     success_feature_vals = []
     failure_feature_vals = []
@@ -61,30 +55,55 @@ def plotSenseDistribution(feature_dict, genre, class_wise_genre_file):
         failure_feature_vals.append(feature_vals)
 
     rects = []
-    success_feature_vals = numpy.array(success_feature_vals)
-    failure_feature_vals = numpy.array(failure_feature_vals)
+    success_feature_vals = success_feature_vals
+    failure_feature_vals = failure_feature_vals
 
-    success_feature_vals = numpy.sum(success_feature_vals, axis=0)
-    failure_feature_vals = numpy.sum(failure_feature_vals, axis=0)
+    # success_feature_vals = numpy.sum(success_feature_vals, axis=0)
+    # failure_feature_vals = numpy.sum(failure_feature_vals, axis=0)
+    #
+    # success_feature_vals = normalize_dist(success_feature_vals)
+    # failure_feature_vals = normalize_dist(failure_feature_vals)
 
-    success_feature_vals = normalize_dist(success_feature_vals)
-    failure_feature_vals = normalize_dist(failure_feature_vals)
+    success_feature_mean = []
+    failure_feature_mean = []
 
-    s_cnt = len(success_feature_vals)
-    f_cnt = len(failure_feature_vals)
+    for feature_vals in success_feature_vals:
+        x = numpy.array([sense+1 for sense in range(len(feature_vals)) for k in numpy.arange(feature_vals[sense])])
+        mean_var = [numpy.mean(x), numpy.var(x)]
+        success_feature_mean.append(mean_var)
 
-    s_ind = numpy.arange(0, s_cnt*3, 3)
-    f_ind = numpy.arange(s_cnt*3, (s_cnt + f_cnt)*3, 3)
+    for feature_vals in failure_feature_vals:
+        x = numpy.array([sense+1 for sense in range(len(feature_vals)) for k in numpy.arange(feature_vals[sense])])
+        mean_var = [numpy.mean(x), numpy.var(x)]
+        failure_feature_mean.append(mean_var)
 
-    rect = ax.bar(s_ind, success_feature_vals, width=width, color='g')
-    rects.append(rect)
+    s_cnt = len(success_feature_mean)
+    f_cnt = len(failure_feature_mean)
 
-    rect = ax.bar(f_ind, failure_feature_vals, width=width, color='r')
-    rects.append(rect)
+    s_ind = numpy.arange(0, s_cnt, 1)
+    f_ind = numpy.arange(s_cnt, (s_cnt + f_cnt), 1)
 
-    ax.set_xticks(numpy.concatenate([s_ind, f_ind]))
-    ax.set_xticklabels([str(idx+1) if idx < s_cnt else str(idx-s_cnt+1) for idx in range(1, s_cnt+f_cnt)])
+    fig = plt.figure()
+
+    plt.title('Sense Distribution for '+genre)
+    plt.ylabel('Mean Of Senses')
+    plt.xlabel('Novel')
+    width = 0.9
+
+    ax1 = fig.add_subplot(2, 1, 1)
+    ax1.bar(s_ind, [mean for mean,var in success_feature_mean], width=width, color='g')
+    ax1.bar(f_ind, [mean for mean,var in failure_feature_mean], width=width, color='r')
+    ax1.set_xticks(numpy.concatenate([s_ind, f_ind]))
+    # ax.set_xticklabels([str(idx+1) if idx < s_cnt else str(idx-s_cnt+1) for idx in range(1, s_cnt+f_cnt)])
+    ax1.set_xticklabels(['S' if idx < s_cnt else 'F' for idx in range(1, s_cnt+f_cnt)])
     # ax.legend(rect)
+
+    ax2 = fig.add_subplot(2, 1, 2)
+    ax2.bar(s_ind, [mean for mean,var in success_feature_mean], width=width, color='g')
+    ax2.bar(f_ind, [mean for mean,var in failure_feature_mean], width=width, color='r')
+    ax2.set_xticks(numpy.concatenate([s_ind, f_ind]))
+    # ax.set_xticklabels([str(idx+1) if idx < s_cnt else str(idx-s_cnt+1) for idx in range(1, s_cnt+f_cnt)])
+    ax2.set_xticklabels(['S' if idx < s_cnt else 'F' for idx in range(1, s_cnt+f_cnt)])
 
     plt.show()
 

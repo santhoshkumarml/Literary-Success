@@ -144,7 +144,7 @@ def readGenreBasedFilesAndTagWords(genre_to_file_list, meta_dict, tagger=None):
             pos_tag_dict = dict()
             with open(genre_file_path) as f:
                 filelines = f.readlines()
-                tokens = [nltk.word_tokenize(line.decode('utf8')) for line in filelines]
+                tokens = [nltk.word_tokenize(line1)) for line in filelines]
                 pos_tagged_lines = []
                 if tagger != None:
                     pos_tagged_lines = tagger.tag_sents(tokens)
