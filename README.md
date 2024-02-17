@@ -10,6 +10,6 @@ We extend our work from the previous known methods to classify successful novels
 
 ### CONTRIBUTORS:
 
-[Santhosh Kumar Manavasi Lakshminarayanan] (https://github.com/santhoshkumarml)
+[Santhosh Kumar Manavasi Lakshminarayanan](https://github.com/santhoshkumarml)
 
 [Sriganesh Navaneethakrishnan](https://github.com/SriganeshNk)
